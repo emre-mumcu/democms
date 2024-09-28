@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+namespace src.App_Lib.Attributes;
 
-namespace src.App_Lib.Attributes
+public class RoleDescriptionAttribute : Attribute
 {
-    public class RoleDescriptionAttribute : Attribute
-    {
-        public bool Restricted { get; set; }
-        public string RoleName { get; set; }
-        public string RoleDetail { get; set; }
-    }
+	public bool Restricted { get; set; }
+	public required string RoleName { get; set; }
+	public required string RoleDetail { get; set; }
 }

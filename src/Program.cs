@@ -67,10 +67,13 @@ try
 
     App.Instance._WebHostEnvironment = app.Services.GetRequiredService<IWebHostEnvironment>();
     App.Instance._HttpContextAccessor = app.Services.GetRequiredService<IHttpContextAccessor>();
+	App.Instance._ServiceProvider = app.Services;
 
     await DataSeeder.SeedData(app.Services);
 
     MenuBuilder.Configure(app.Services.GetRequiredService<IAuthorizationPolicyProvider>());
+
+
 
     app.Run();
 }

@@ -1,16 +1,17 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace src.App_Data.Types
-{
-    public enum EnumCacheNames
-    {
-        [Display(Name = "Cache 1")]
-        [Description("Cache1")]
-        Cache1 = 1,
-        [Description("Cache2")]
-        Cache2 = 2
-    }
+namespace src.App_Data.Types;
 
-    
+public enum EnumCacheNames
+{
+	[Display(Name = "City Cache")]
+	[Description("City Cache")]
+	City = 1,
+	[Display(Name = "State Cache")]
+	[Description("State Cache")]
+	State = 2,
+	[Display(Name = "Gender Cache")]
+	[Description("Gender Cache")]
+	Gender = 3
 }

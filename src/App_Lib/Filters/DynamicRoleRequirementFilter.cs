@@ -35,7 +35,7 @@ namespace src.App_Lib.Filters
             string userSelectedRoleEnc = context.HttpContext.Session.GetKey<string>(Literals.SessionKey_SelectedRole);
             string userSelectedRole = Security.Decrypt(userSelectedRoleEnc, context.HttpContext.Session.Id);
 
-            List<UserRoleRight> RolCodeIcinVeriTabanindakiYetkiTanimlari = StartupCache.GetDbYetkiler(roleCode: userSelectedRole).Result;
+            List<RoleMatrix> RolCodeIcinVeriTabanindakiYetkiTanimlari = StartupCache.GetRoleMatrix(roleCode: userSelectedRole).Result;
 
             bool RedEdildi = RedleriKontrolEt(
                 redListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == false).ToList(),
@@ -62,9 +62,9 @@ namespace src.App_Lib.Filters
         /// RED durumları İZİN lerden önce kontrol edilmelidir.
         /// typeName: nameof(Controller) or nameof(PageModel)
         /// </summary>
-        public static bool RedleriKontrolEt(List<UserRoleRight> redListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
+        public static bool RedleriKontrolEt(List<RoleMatrix> redListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
         {
-            foreach (UserRoleRight yetki in redListesi)
+            foreach (RoleMatrix yetki in redListesi)
             {
                 if (typeName == nameof(PageModel))
                 {
@@ -93,9 +93,9 @@ namespace src.App_Lib.Filters
         /// RED durumları İZİN lerden önce kontrol edilmelidir.
         /// typeName: nameof(Controller) or nameof(PageModel)
         /// </summary>
-        public static bool IzinleriKontrolEt(List<UserRoleRight> izinListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
+        public static bool IzinleriKontrolEt(List<RoleMatrix> izinListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
         {
-            foreach (UserRoleRight yetki in izinListesi)
+            foreach (RoleMatrix yetki in izinListesi)
             {
                 if (typeName == nameof(PageModel))
                 {

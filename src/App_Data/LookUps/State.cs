@@ -1,10 +1,8 @@
-using System;
-
 namespace src.App_Data.LookUps;
 
-public class State 
+public class State
 {
-    public int Id { get; set; }
-    public string StateName { get; set; } = null!;
-    public ICollection<City>? Cities { get; set; }
+	public int Id { get; set; }
+	public required string StateName { get; set; }
+	public ICollection<City>? Cities { get; set; }
 }

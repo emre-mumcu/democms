@@ -21,5 +21,6 @@ namespace src.App_Lib.Configuration
         public IConfiguration _DataConfiguration { get; set; }
         public IWebHostEnvironment _WebHostEnvironment { get; set; } = null!;
         public IHttpContextAccessor _HttpContextAccessor { get; set; } = null!;
-    }
+		public IServiceProvider _ServiceProvider { get; set; }
+	}
 }

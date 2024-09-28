@@ -4,5 +4,5 @@ namespace src.App_Lib.Abstract;
 
 public interface IAuthorize
 {
-    public AuthenticationTicket GetTicket(string UserId);
+	public AuthenticationTicket GetTicket(string UserId);
 }

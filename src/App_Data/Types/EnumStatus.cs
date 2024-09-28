@@ -1,9 +1,8 @@
-namespace src.App_Data.Types
+namespace src.App_Data.Types;
+
+public enum EnumStatus
 {
-    public enum EnumStatus
-    {
-        Created = 1,
-        Updated = 2,
-        Deleted = 0
-    }
+	Created = 1,
+	Updated = 2,
+	Deleted = 0
 }

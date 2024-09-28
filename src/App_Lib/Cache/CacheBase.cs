@@ -1,53 +1,43 @@
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Caching.Memory;
-using src.App_Data.Types;
-using src.App_Lib.Extensions;
 
 namespace src.App_Lib.Cache;
 
-public class CacheBase<T> where T : new()
+public class CacheBase<T> /* where T : new() */
 {
-    private readonly IMemoryCache? _memCache;
-    private readonly MemoryCacheEntryOptions? _cacheOptions;
+	private readonly IMemoryCache _memCache;
+	private readonly MemoryCacheEntryOptions _cacheOptions;
 
-    public CacheBase(IMemoryCache memCache)
-    {
-        _memCache = memCache;
+	public CacheBase(IMemoryCache memCache)
+	{
+		_memCache = memCache;
 
-        _cacheOptions = new MemoryCacheEntryOptions
-        {
-            AbsoluteExpiration = DateTime.Now.AddMinutes(60),
-            SlidingExpiration = new TimeSpan(0, 20, 0),
-            Priority = CacheItemPriority.Normal
-        };
-    }
+		_cacheOptions = new MemoryCacheEntryOptions
+		{
+			AbsoluteExpiration = DateTime.Now.AddMinutes(60),
+			SlidingExpiration = new TimeSpan(0, 20, 0),
+			Priority = CacheItemPriority.Normal
+		};
+	}
 
-    protected async Task<List<T>> GetCachedData(string cacheName, Func<Task<List<T>>> fillCacheData, bool isDirty = false)
-    {
-        
+	protected async Task<List<T>?> GetData(string cacheName, Func<Task<List<T>>> fillCacheData, bool isDirty = false)
+	{
+		try
+		{
+			if (isDirty) _memCache.Remove(cacheName);
 
-        try
-        {
-            
+			List<T>? data;
 
-            if (isDirty) _memCache.Remove(cacheName);
+			if (!_memCache.TryGetValue(cacheName, out data))
+			{
+				data = await Task.Run(fillCacheData);
+				_memCache.Set(cacheName, data, _cacheOptions);
+			}
 
-            List<T> data;
-
-            if (!_memCache.TryGetValue(cacheName, out data))
-            {
-                data = await Task.Run(fillCacheData);
-                _memCache.Set(cacheName, data, _cacheOptions);
-            }
-
-            return data;
-        }
-        catch (Exception ex)
-        {
-            
-            return default;
-        }
-    }
+			return data;
+		}
+		catch
+		{
+			return default;
+		}
+	}
 }
-

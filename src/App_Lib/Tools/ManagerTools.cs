@@ -111,7 +111,7 @@ namespace src.App_Lib.Tools
             string encryptedSelectedRole = _httpContextAccessor.HttpContext.Session.GetKey<string>(Literals.SessionKey_SelectedRole);
             string selectedRole = Security.Decrypt(encryptedSelectedRole, sessionId);
 
-            List<UserRoleRight> RolCodeIcinVeriTabanindakiYetkiTanimlari = StartupCache.GetDbYetkiler(roleCode: selectedRole).Result;
+            List<RoleMatrix> RolCodeIcinVeriTabanindakiYetkiTanimlari = StartupCache.GetRoleMatrix(roleCode: selectedRole).Result;
 
             bool RedEdildi = DynamicRoleRequirementFilter.RedleriKontrolEt(
                 redListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == false).ToList(),

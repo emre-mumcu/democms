@@ -43,11 +43,11 @@ public class RoleMatrixController : Controller
         bool roleDurum = Durum == 1;
 
         // check if yetli && role defined earlier:
-        UserRoleRight? mevcutYetki = appDbContext.UserRoleRights.Where(y => y.FullName == Yetki && y.RoleCode == roleName).FirstOrDefault();
+        RoleMatrix? mevcutYetki = appDbContext.UserRoleRights.Where(y => y.FullName == Yetki && y.RoleCode == roleName).FirstOrDefault();
 
         if (mevcutYetki is null)
         {
-            UserRoleRight yetki = new UserRoleRight()
+            RoleMatrix yetki = new RoleMatrix()
             {
                 RoleCode = roleName,
                 FullName = Yetki,
@@ -70,7 +70,7 @@ public class RoleMatrixController : Controller
         }
 
         // Update Cache
-        await StartupCache.GetDbYetkiler(refresh: true);
+        await StartupCache.GetRoleMatrix(refresh: true);
     }
 
 }

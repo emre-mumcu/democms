@@ -10,6 +10,6 @@ namespace src.App_Lib.Cache
     {
         public _CacheStates(IMemoryCache memCache) : base(memCache) { }
         private async Task<List<State>> FillCache() => await new AppDbContext().States.ToListAsync();
-        public async Task<List<State>> GetData(bool isDirty = false) => await GetCachedData(this.GetType().Name, FillCache, isDirty);
+        public async Task<List<State>?> GetData(bool isDirty = false) => await GetData(this.GetType().Name, FillCache, isDirty);
     }
 }
