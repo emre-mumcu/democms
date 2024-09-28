@@ -4,8 +4,8 @@ namespace src.App_Lib.Concrete;
 
 public class TestAuthenticate : IAuthenticate
 {
-    public bool AuthenticateUser(string User, string Password)
-    {
-        return true;
-    }
+	public bool AuthenticateUser(string User, string Password)
+	{
+		return true;
+	}
 }

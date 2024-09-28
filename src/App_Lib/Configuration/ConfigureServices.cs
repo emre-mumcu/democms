@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization.Policy;
 using src.App_Lib.Abstract;
 using src.App_Lib.Concrete;
 using src.App_Lib.Configuration.Ext;
+using src.App_Lib.Evaluators;
 using src.App_Lib.Filters;
 using src.App_Lib.Tools;
 
@@ -36,6 +38,8 @@ public static class ConfigureServices
         web_builder.Services.AddScoped<WebExceptionFilter>();
         web_builder.Services.AddScoped<GlobalExceptionFilter>();
 
-        return web_builder;
+		// web_builder.Services.AddSingleton<IPolicyEvaluator, MockPolicyEvaluator>();
+
+		return web_builder;
     }
 }
