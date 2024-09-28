@@ -1,0 +1,18 @@
+﻿@page
+@model src.Pages.StatusResultModel
+@{
+}
+@{
+    int statusCode = 0;
+
+    if(Model.ServerStatusCode.HasValue)
+    {
+        statusCode = Model.ServerStatusCode.Value;
+    }
+    ViewBag.Title = statusCode;
+    ViewBag.PageDescription = "Aradığınız Sayfa Bulunamadı";
+}
+@statusCode
+@Model?.ServerStatusCode.Value
+
+@Model?.RequestUrl

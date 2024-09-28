@@ -1,0 +1,19 @@
+{
+    "Application": {
+        "Name": "DemoCMS",
+        "Version": "1.0.0.0",
+        "CDNPath": "/Users/emre/AppStore/Dev/DemoCMS/src/wwwroot",
+        "GalleryPath": "gallery"
+    },
+    "Database": {
+        "ConnectionString": "Data Source=app.db;"
+    },
+    "TokenParameters": {
+        "Issuer": "MockAPI",
+        "Audience": "*",
+        "Timeout": 20,
+        "SignKey": "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+        "EncryptKey": "0123456789ABCDEF",
+        "ClockSkew": 1
+    }
+}

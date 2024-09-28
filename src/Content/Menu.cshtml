@@ -1,0 +1,141 @@
+﻿@using System.Reflection
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Http
+@using src.App_Lib.Concrete
+@using src.App_Lib.Configuration
+@using src.App_Lib.Configuration.Ext
+@using src.App_Lib.Requirements
+@inject IHttpContextAccessor _HttpContextAccessor
+@inject IAuthorizationPolicyProvider policyProvider
+
+@{
+    String controller = ViewContext?.RouteData?.Values["Controller"]?.ToString() ?? "Home";
+    String action = ViewContext?.RouteData?.Values["Action"]?.ToString() ?? "Index";
+
+    AppUser? appUser = _HttpContextAccessor.HttpContext?.Session.GetKey<AppUser>(Literals.SessionKey_AppUser);
+}
+
+<div class="MenuBuilder">
+
+    @if (MenuBuilder.MenuItems is not null && MenuBuilder.MenuItems.ToList().Count > 0)
+    {
+        // var allowedMenuList = NetMenu.AppLib.MenuBuilder.MenuItems.Where(m => IsUserAllowed(m, selectedRole));
+        var allowedMenuList = MenuBuilder.MenuItems;
+
+        <ul>
+
+            @foreach (var mi in allowedMenuList.DistinctBy(i => new { i.ParentText, i.IsSingle }).OrderBy(i => i.MenuIndex).ThenBy(i => i.ParentText))
+            {
+                string activeItemClass = (controller == mi.ControllerName && mi.ActionName == action) ? ("active") : ("");
+
+                @if (mi.IsSingle)
+                {
+                    <li class="@activeItemClass">
+                        <a href="@Url.Action(mi.ActionName,mi.ControllerName)">
+                            <i class="@mi.MenuIconClass"></i>
+                            <span>@mi.ParentText</span>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="@activeItemClass">
+
+                        <a href="#@mi.ControllerName" class='sidebar-link'>
+                            <i class="@mi.MenuIconClass"></i>
+                            <span>@mi.ParentText</span>
+                        </a>
+
+                        <ul class="@activeItemClass">
+
+                            @foreach (var submi in allowedMenuList.Where(i => i.ParentText == mi.ParentText && i.IsSingle == false).ToList())
+                            {
+                                string activeSubItemClass = (controller == submi.ControllerName && submi.ActionName == action) ? ("active") : ("");
+
+                                <li class="@activeSubItemClass">
+                                    <a href="@Url.Action(submi.ActionName,submi.ControllerName)">
+                                        <i class="@mi.MenuIconClass"></i>
+                                        <span>@submi.MenuText</span>
+                                    </a>
+                                </li>
+                            }
+
+                        </ul>
+                    </li>
+                }
+            }
+
+        </ul>
+    }
+
+</div>
+
+
+
+@{
+    bool IsUserAllowed(MenuBuilder.MenuItemObj menuItem, string SelectedUserRole)
+    {
+        var attributes = MethodAttributes(menuItem) ?? ClassAttributes(menuItem);
+
+        if (attributes is null) return true;
+        else
+        {
+            foreach (var attribute in attributes)
+            {
+                AuthorizationPolicy? authorizationPolicy = policyProvider.GetPolicyAsync(attribute.Policy).Result;
+
+                List<UserRequirement?>? userRequirements = authorizationPolicy.Requirements
+                    .Where(r => r is UserRequirement)
+                    .Select(r => r as UserRequirement)
+                    .ToList();
+
+                foreach (var userRequirement in userRequirements)
+                {
+                    if (userRequirement.Roles.Contains(SelectedUserRole)) return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // AuthorizationAttribute Applied to Controller (Class) Level
+    IEnumerable<AuthorizeAttribute>? ClassAttributes(MenuBuilder.MenuItemObj menuItem)
+    {
+        // IEnumerable<AuthorizeAttribute>? attributes = Assembly
+        //     //.GetAssembly(typeof(Program))
+        //     .GetExecutingAssembly()
+        //     ?.GetType(menuItem.FullName)
+        //     ?.GetCustomAttributes<AuthorizeAttribute>()
+        // ;
+
+        // return attributes.Count() == 0 ? null : attributes;
+
+        return null;
+    }
+
+    // AuthorizationAttribute Applied to Action (Method) Level
+    IEnumerable<AuthorizeAttribute>? MethodAttributes(MenuBuilder.MenuItemObj menuItem)
+    {
+        // MethodInfo? methodInfo = Assembly
+        //     //.GetAssembly(typeof(Program))
+        //     .GetExecutingAssembly()
+        //     ?.GetTypes()
+        //     ?.Where(type => typeof(Microsoft.AspNetCore.Mvc.Controller).IsAssignableFrom(type))
+        //     ?.Where(type => type.FullName == menuItem.FullName)
+        //     ?.SelectMany(type => type.GetMethods(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public))
+        //     ?.Where(t => t.IsDefined(typeof(xMenuItemAttribute2)))
+        //     ?.Where(i => i.DeclaringType.FullName == menuItem.FullName)
+        //     ?.Where(i => i.Name == menuItem.ActionName)
+        //     ?.First()
+        // ;
+
+        // IEnumerable<AuthorizeAttribute?>? attributes = System.Attribute.GetCustomAttributes(methodInfo).Where(a => a is AuthorizeAttribute).Select(a => a as AuthorizeAttribute).ToList();
+
+        // return attributes.Count() == 0 ? null : attributes;
+
+        return null;
+    }
+}
+
+        

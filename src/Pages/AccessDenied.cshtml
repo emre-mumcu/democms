@@ -1,0 +1,8 @@
+﻿@page
+@model src.Pages.AccessDeniedModel
+@{
+    Layout = null;
+    var returnUrl = HttpContext.Request.Query["returnurl"]; 
+}
+
+Access Denied to @returnUrl
