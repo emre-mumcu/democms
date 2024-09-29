@@ -8,8 +8,12 @@ using src.App_Lib.Configuration.Ext;
 
 namespace src.App_Lib.Evaluators;
 
+/// <summary>
+/// This class requires review!!!
+/// </summary>
 public class MockPolicyEvaluator : IPolicyEvaluator
 {
+	// TODO: Review is required!!!
 	private readonly IAuthorize _authorizer;
 	private readonly IAuthorizationService _authorization;
 

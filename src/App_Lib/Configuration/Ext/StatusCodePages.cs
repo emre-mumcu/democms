@@ -15,6 +15,7 @@ public static class StatusCodePages
         //app.UseStatusCodePages();
 
         app.UseStatusCodePagesWithReExecute("/StatusResult", "?statusCode={0}");
+		
         return app;
     }
 }

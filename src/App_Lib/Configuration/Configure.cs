@@ -3,41 +3,50 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using src.App_Lib.Cache;
 using src.App_Lib.Configuration.Ext;
-using System.Diagnostics;
 
 namespace src.App_Lib.Configuration;
 
 public static class Configure
 {
-    public async static Task<WebApplication> _Configure(this WebApplication app)
-    {
-
+	public async static Task<WebApplication> _Configure(this WebApplication app)
+	{
+		var staticFilePath = app.Services.GetRequiredService<IOptions<DataOptions>>()?.Value?.Application?.CdnPath ?? "wwwroot";
 
 		app._InitApp();
-        app.UseHttpsRedirection();
-        app._UseSCP();
-        app.UseStaticFiles(new StaticFileOptions
-        {
-            FileProvider = new PhysicalFileProvider(app.Services.GetRequiredService<IOptions<DataOptions>>().Value.Application.CdnPath),
-            RequestPath = "/cdn"
-        });
-        app._UseOptions();
-        app._UseSession();
-        app.UseRouting();
-       app._UseAuthentication();
-        app._UseAuthorization();
-        app.UseHsts();
-        // Keep
-        await Task.FromResult(0);
 
-        StartupCache.StartupCacheConfig(app.Services.GetRequiredService<IMemoryCache>());
+		app.UseHttpsRedirection();
 
-        app.MapDefaultControllerRoute();
+		app._UseSCP();
 
-        app.MapControllers();
+		app.UseStaticFiles(new StaticFileOptions
+		{
+			FileProvider = new PhysicalFileProvider(staticFilePath),
+			RequestPath = "/cdn"
+		});
 
-        app.MapRazorPages();
+		app._UseOptions();
 
-        return app;
-    }
+		app._UseSession();
+
+		app.UseRouting();
+
+		app._UseAuthentication();
+
+		app._UseAuthorization();
+
+		app.UseHsts();		
+
+		app.MapDefaultControllerRoute();
+
+		app.MapControllers();
+
+		app.MapRazorPages();
+
+		// Keep
+		await Task.FromResult(0);
+
+		CacheInit.Configure(app.Services.GetRequiredService<IMemoryCache>());
+
+		return app;
+	}
 }

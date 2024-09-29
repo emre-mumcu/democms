@@ -31,7 +31,8 @@ namespace src.App_Lib.Configuration.Ext
     {
         public Application? Application { get; set; }
         public Database? Database { get; set; }
-    }
+		public TokenParameters? TokenParameters { get; set; }
+	}
 
     public partial class Application
     {
@@ -46,4 +47,14 @@ namespace src.App_Lib.Configuration.Ext
     {
         public string? ConnectionString { get; set; }
     }
+
+	public partial class TokenParameters
+	{
+		public string? Issuer { get; set; }
+		public string? Audience { get; set; }
+		public long Timeout { get; set; }
+		public string? SignKey { get; set; }
+		public string? EncryptKey { get; set; }
+		public long ClockSkew { get; set; }
+	}
 }

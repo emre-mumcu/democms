@@ -13,9 +13,9 @@ public static class Init
 
 
         {
-            // Culture
+			// RequestLocalizationOptions
 
-            CultureInfo ciTR = new CultureInfo("tr-TR");
+			CultureInfo ciTR = new CultureInfo("tr-TR");
             CultureInfo ciEN = new CultureInfo("en-US");
             CultureInfo ciDE = new CultureInfo("de-DE");
 
@@ -56,7 +56,7 @@ public static class Init
 
 
         {
-            // JsonOptions Configuration
+            // System.Text.Json Configuration
 
             mvcBuilder.AddJsonOptions(options => {
                 options.JsonSerializerOptions.WriteIndented = true;
@@ -68,14 +68,7 @@ public static class Init
             });
 
         }
-
-
-        services.Configure<CookieTempDataProviderOptions>(options =>
-        {
-            options.Cookie.IsEssential = true; // GDPR
-        });
-
-        services.AddRazorPages();
+        
         
         services.AddHttpContextAccessor();
 
