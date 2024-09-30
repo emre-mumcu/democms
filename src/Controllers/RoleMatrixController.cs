@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using src.App_Data;
 using src.App_Data.Entities;
 using src.App_Data.Types;
@@ -24,14 +25,7 @@ public class RoleMatrixController : Controller
     {
         YetkiMatrisiViewModel vm = new YetkiMatrisiViewModel();
         vm.UygulamaYetkiListesi = new UygulamaYetkileri().YetkiListesi();
-        vm.VeritabaniYetkiListesi = appDbContext.UserRoleRights.Select(i => new DbUserRoleRight()
-        {
-            Id = i.Id,
-            FullName = i.FullName,
-            RoleCode = i.RoleCode,
-            Allow = i.Allow
-        })
-        .ToList();
+        vm.VeritabaniYetkiListesi = appDbContext.RoleMatrixes.ToList();
 
         return View(model: vm);
     }
@@ -43,7 +37,7 @@ public class RoleMatrixController : Controller
         bool roleDurum = Durum == 1;
 
         // check if yetli && role defined earlier:
-        RoleMatrix? mevcutYetki = appDbContext.UserRoleRights.Where(y => y.FullName == Yetki && y.RoleCode == roleName).FirstOrDefault();
+        RoleMatrix? mevcutYetki = appDbContext.RoleMatrixes.Where(y => y.FullName == Yetki && y.RoleCode == roleName).FirstOrDefault();
 
         if (mevcutYetki is null)
         {
@@ -56,7 +50,7 @@ public class RoleMatrixController : Controller
                 UserName = (User.Identity as ClaimsIdentity).GetNameIdentifier()
             };
 
-            appDbContext.UserRoleRights.Add(yetki);
+            appDbContext.RoleMatrixes.Add(yetki);
             appDbContext.SaveChanges();
         }
         else
@@ -65,12 +59,13 @@ public class RoleMatrixController : Controller
             mevcutYetki.DepartmentId = (User.Identity as ClaimsIdentity).GetDepartment();
             mevcutYetki.UserName = (User.Identity as ClaimsIdentity).GetNameIdentifier();
 
-            appDbContext.UserRoleRights.Update(mevcutYetki);
+            appDbContext.RoleMatrixes.Update(mevcutYetki);
             appDbContext.SaveChanges();
         }
 
         // Update Cache
-        await StartupCache.GetRoleMatrix(refresh: true);
+		var memCache = HttpContext.RequestServices.GetRequiredService<IMemoryCache>();		
+        await new _CacheRoleMatrix(memCache).GetData(isDirty: true);
     }
 
 }
@@ -78,16 +73,10 @@ public class RoleMatrixController : Controller
 public class YetkiMatrisiViewModel
 {
     public List<RoleItem> UygulamaYetkiListesi { get; set; }
-    public List<DbUserRoleRight> VeritabaniYetkiListesi { get; set; }
+    public List<RoleMatrix> VeritabaniYetkiListesi { get; set; }
 }
 
-public class DbUserRoleRight
-{
-    public int Id { get; set; }
-    public string RoleCode { get; set; }
-    public string FullName { get; set; }
-    public bool Allow { get; set; } = true;
-}
+
 
 public class RoleItem
 {

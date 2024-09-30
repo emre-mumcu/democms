@@ -15,7 +15,8 @@
 
 //dotnet tool install --global dotnet-ef
 //dotnet tool update --global dotnet-ef
-//dotnet ef migrations add Migration1 -o App_Data\Migrations
+//dotnet ef migrations add Migration1 -o App_Data/Migrations
+//dotnet ef migrations add Mig1 -o App_Data/Migrations
 //dotnet ef database update
 
 // dotnet add package Microsoft.EntityFrameworkCore.Sqlite
@@ -404,4 +405,14 @@ namespace src.App_Lib.Cache
 //    _context.Result = result;
 //}
 
+
+
+
+/*
+ *  Razor Syntax
+ *  ------------
+ * 	var controller = ViewContext.RouteData.Values["Controller"]?.ToString()?.ToLower(new System.Globalization.CultureInfo("en-us"));
+ * 	var action = ViewContext.RouteData.Values["Action"]?.ToString()?.ToLower(new System.Globalization.CultureInfo("en-us"));
+ * 	
+//  */
 ```

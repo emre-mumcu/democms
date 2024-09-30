@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Caching.Memory;
 using src.App_Data.Entities;
 using src.App_Data.Types;
 using src.App_Lib.Cache;
@@ -106,14 +107,23 @@ namespace src.App_Lib.Tools
         }
 
         private bool IsResourceAllowed(string controllerName, string actionName)
-        {
-            string sessionId = _httpContextAccessor.HttpContext.Session.Id;
-            string encryptedSelectedRole = _httpContextAccessor.HttpContext.Session.GetKey<string>(Literals.SessionKey_SelectedRole);
-            string selectedRole = Security.Decrypt(encryptedSelectedRole, sessionId);
+        {			
+		
+			string sessionId = _httpContextAccessor!.HttpContext!.Session.Id;
+            string? encryptedSelectedRole = _httpContextAccessor!.HttpContext!.Session.GetKey<string>(Literals.SessionKey_SelectedRole);
+            
+			string? userSelectedRole = encryptedSelectedRole != null
+			? Security.Decrypt(encryptedSelectedRole, sessionId)
+			: null
+		;
 
-            List<RoleMatrix> RolCodeIcinVeriTabanindakiYetkiTanimlari = StartupCache.GetRoleMatrix(roleCode: selectedRole).Result;
+			var memCache = _httpContextAccessor.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
 
-            bool RedEdildi = DynamicRoleRequirementFilter.RedleriKontrolEt(
+			List<RoleMatrix>? roleMatrix = new _CacheRoleMatrix(memCache).GetData().Result;
+
+			IEnumerable<RoleMatrix>? RolCodeIcinVeriTabanindakiYetkiTanimlari = roleMatrix?.Where(i => i.RoleCode == userSelectedRole);
+
+			bool RedEdildi = DynamicRoleRequirementFilter.DenyCheck(
                 redListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == false).ToList(),
                 ErisilmekIstenenKaynak: $"{controllerName}.{actionName}",
                 typeName: nameof(Controller));
@@ -122,7 +132,7 @@ namespace src.App_Lib.Tools
                 return false;
             }
 
-            bool IzinVerildi = DynamicRoleRequirementFilter.IzinleriKontrolEt(
+            bool IzinVerildi = DynamicRoleRequirementFilter.AllowCheck(
                 izinListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == true).ToList(),
                 ErisilmekIstenenKaynak: $"{controllerName}.{actionName}",
                 typeName: nameof(Controller));
@@ -133,15 +143,5 @@ namespace src.App_Lib.Tools
 
             return true;
         }
-
     }
-
 }
-
-/*
- *  Razor Syntax
- *  ------------
- * 	var controller = ViewContext.RouteData.Values["Controller"]?.ToString()?.ToLower(new System.Globalization.CultureInfo("en-us"));
- * 	var action = ViewContext.RouteData.Values["Action"]?.ToString()?.ToLower(new System.Globalization.CultureInfo("en-us"));
- * 	
- */

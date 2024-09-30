@@ -67,7 +67,7 @@ public class DynamicRoleRequirementFilter : IAuthorizationFilter
 	/// DenyCheck must run before AllowCheck
 	/// True if deny, False if NOT
 	/// </summary>
-	public bool DenyCheck(List<RoleMatrix> redListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
+	public static bool DenyCheck(List<RoleMatrix> redListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
 	{
 		foreach (RoleMatrix yetki in redListesi)
 		{
@@ -95,7 +95,7 @@ public class DynamicRoleRequirementFilter : IAuthorizationFilter
 	/// AllowCheck must run after DenyCheck
 	/// True if allow, False if NOT
 	/// </summary>
-	public bool AllowCheck(List<RoleMatrix> izinListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
+	public static bool AllowCheck(List<RoleMatrix> izinListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
 	{
 		foreach (RoleMatrix yetki in izinListesi)
 		{

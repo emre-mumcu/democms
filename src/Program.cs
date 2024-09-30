@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using src.App_Data;
 using src.App_Lib.Concrete;
 using src.App_Lib.Configuration;
-using src.App_Lib.Configuration.Ext;
 
 try
 {

@@ -9,7 +9,7 @@ namespace src.App_Data
 	{
 		public AppDbContext() { }
 
-		public AppDbContext(DbContextOptions options) : base(options) { }
+		//public AppDbContext(DbContextOptions options) : base(options) { }
 
 		public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
