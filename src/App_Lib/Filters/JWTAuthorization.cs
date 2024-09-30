@@ -1,25 +1,22 @@
-using System;
 using System.Net;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using src.App_Lib.Abstract;
+using src.App_Lib.Cache;
 using src.App_Lib.Tools;
 
 namespace src.App_Lib.Filters;
-
-// https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authorization/Core/src/AuthorizeAttribute.cs
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public class JWTAuthorization : Attribute, IAuthorizationFilter
 {
     public JWTAuthorization() { }
 
-    /// <summary>
-    /// JWT Token should be present in header as 
-    /// Key: "Authorization" Value: "Bearer jwt.token.here" (set both key and value without quotes)
-    /// </summary>
     public void OnAuthorization(AuthorizationFilterContext filterContext)
     {
+		var tokenService = filterContext.HttpContext.RequestServices.GetRequiredService<ITokenService>();
+
         if (filterContext != null)
         {
             Microsoft.Extensions.Primitives.StringValues authorizationToken;
@@ -30,20 +27,22 @@ public class JWTAuthorization : Attribute, IAuthorizationFilter
 
             if (tokenSend != null)
             {
-                if (ValidateToken(tokenSend, out string message))
+                if (tokenService.ValidateToken(tokenSend, out string message, out _, out _))
                 {
-                    filterContext.HttpContext.Response.Headers.Add("Authorization", tokenSend);
-                    filterContext.HttpContext.Response.Headers.Add("RequestStatus", "Authorized");
+                    filterContext.HttpContext.Response.Headers.Append("Authorization", tokenSend);
+                    filterContext.HttpContext.Response.Headers.Append("RequestStatus", "Authorized");
                     return;
                 }
                 else
                 {
-                    filterContext.HttpContext.Response.Headers.Add("Authorization", tokenSend);
-                    filterContext.HttpContext.Response.Headers.Add("RequestStatus", "Unauthorized");
+                    filterContext.HttpContext.Response.Headers.Append("Authorization", tokenSend);
+                    filterContext.HttpContext.Response.Headers.Append("RequestStatus", "Unauthorized");
                     filterContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
                     filterContext.HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Unauthorized";
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
+
                     filterContext.Result = new JsonResult("Unauthorized")
                     {
                         Value = new
@@ -57,9 +56,11 @@ public class JWTAuthorization : Attribute, IAuthorizationFilter
             else
             {
                 filterContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.ExpectationFailed;
+
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
                 filterContext.HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = "TokenNotFound";
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
+
                 filterContext.Result = new JsonResult("TokenNotFound")
                 {
                     Value = new
@@ -71,20 +72,4 @@ public class JWTAuthorization : Attribute, IAuthorizationFilter
             }
         }
     }
-
-    public bool ValidateToken(string token, out string message)
-    {
-        if (token.StartsWith("Bearer ")) token = token.Split("Bearer ")[1];
-
-        JWTFactory jwt = new JWTFactory(
-            issuer: "",
-            signKey: "",
-            encryptKey: ""
-            );
-
-        bool isValid = jwt.ValidateToken(token, out message, out _);
-
-        return isValid;
-    }
 }
-

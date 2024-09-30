@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -9,10 +8,6 @@ using src.App_Lib.Extensions;
 
 namespace src.App_Lib.Filters;
 
-/// <summary>
-/// [ActionLogFilter]
-/// https://www.c-sharpcorner.com/article/learn-about-custom-action-filter-in-asp-net/
-/// </summary>
 public class ActionLogFilter : ActionFilterAttribute, IExceptionFilter
 {
     public override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -34,7 +29,7 @@ public class ActionLogFilter : ActionFilterAttribute, IExceptionFilter
                 Scheme = filterContext.HttpContext.Request.Scheme.ToString(),
                 Protocol = filterContext.HttpContext.Request.Protocol.ToString(),
                 RouteData = filterContext.RouteData.Values.ToStringEx(),
-                // RouteValues = filterContext.HttpContext.Request.RouteValues.ToStringEx(),
+                RouteValues = filterContext.HttpContext.Request.RouteValues.ToStringEx(),
                 ModelState = filterContext.ModelState.ToStringEx(),
                 Query = filterContext.HttpContext.Request.Query.ToStringEx(),
                 QueryString = filterContext.HttpContext.Request.QueryString.ToString(),
@@ -160,8 +155,7 @@ public class ActionLogFilter : ActionFilterAttribute, IExceptionFilter
 
 // public class ActionLogFilter : IActionFilter
 // {
-//     // https://code-maze.com/action-filters-aspnetcore/
-//     // [ServiceFilter(typeof(MosipActionFilter))]
+//     [ServiceFilter(typeof(MosipActionFilter))]
 //     public void OnActionExecuting(ActionExecutingContext context)
 //     {
 //         // our code before action executes

@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace src.App_Lib.Extensions;

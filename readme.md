@@ -274,4 +274,134 @@ namespace src.App_Lib.Cache
 		else throw new ArgumentException(nameof(fieldInfo));
 	}
 
+
+
+	//StackTrace st = new StackTrace();
+//StackFrame currentFrame = st.GetFrame(1);
+//MethodBase method = currentFrame.GetMethod();
+
+
+
+
+
+
+//NLog.Logger logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+
+/*
+ * 
+ *         private bool Is_WebAPI()
+        {
+            ControllerActionDescriptor actionDescriptor = _context.ActionDescriptor as ControllerActionDescriptor;
+
+            if (actionDescriptor == null) return false;
+
+            /// API (Api implements ControllerBase but not Controller)
+            if (actionDescriptor.ControllerTypeInfo.IsSubclassOf(typeof(ControllerBase)) && !actionDescriptor.ControllerTypeInfo.IsSubclassOf(typeof(Controller)))
+                return true;
+            else
+                return false;
+        }
+
+        private bool Is_View_Or_Page()
+        {
+            ControllerActionDescriptor actionDescriptor = _context.ActionDescriptor as ControllerActionDescriptor;
+
+            /// View/Page (View/Page implements ControllerBase and Controller)
+            if (actionDescriptor.ControllerTypeInfo.IsSubclassOf(typeof(ControllerBase)) && actionDescriptor.ControllerTypeInfo.IsSubclassOf(typeof(Controller)))
+                return true;
+            else
+                return false;
+        }
+ 
+ 
+         public override void OnException(ExceptionContext context)
+        {
+            _context = context;
+
+
+
+
+
+
+
+            ////if (Is_WebAPI())
+            ////{
+            ////    /// Handle WebAPI exception
+            ////    ApiException();
+            ////}
+            ////else if (Is_View_Or_Page())
+            ////{
+            ////    /// Handle View/Page exception
+            ////    /// Return one of them: Content, Response or View
+            ////    /// ---------------------------------------------
+            ////    /// ViewPage_Error_In_ContentResult();
+            ////    /// ViewPage_Error_In_Response();
+            ////    ViewPage_Error_In_View();
+            ////}
+            ////else
+            ////{
+            ////    //logger.Log(LogLevel.Error, $"Unspecified Exception {_context?.Exception?.Message}");
+            ////}
+
+            ////base.OnException(context);
+        }
+ 
+ 
+ */
+
+
+//private void ViewPage_Error_In_ContentResult()
+//{
+//    ControllerActionDescriptor actionDescriptor = _context.ActionDescriptor as ControllerActionDescriptor;
+
+//    ContentResult cResult = new ContentResult()
+//    {
+//        ContentType = "text/plain",
+//        StatusCode = StatusCodes.Status500InternalServerError,
+//        Content = ExceptionAsJson()
+//    };
+
+//    _context.ExceptionHandled = true;
+
+//    _context.Result = cResult;
+//}
+
+//private void ViewPage_Error_In_Response()
+//{
+//    _context.ExceptionHandled = true;
+
+//    HttpResponse response = _context.HttpContext.Response;
+
+//    response.StatusCode = StatusCodes.Status500InternalServerError;
+
+//    response.ContentType = "application/json";
+
+//    response.WriteAsync(ExceptionAsJson());
+//}
+
+//private void ViewPage_Error_In_View()
+//{
+//    _context.ExceptionHandled = true;
+
+//    ControllerActionDescriptor actionDescriptor = _context.ActionDescriptor as ControllerActionDescriptor;
+
+//    ViewResult result = new ViewResult() { ViewName = "_Exception" };
+
+//    ViewDataDictionary vdd = new ViewDataDictionary(new EmptyModelMetadataProvider(), _context.ModelState)
+//    {
+//        Model = new GlobalExceptionViewModel()
+//        {
+//            Source = $"{actionDescriptor.ControllerName}/{actionDescriptor.ActionName}",
+//            IsStatusCodeException = false,
+//            StatusCode = (int)HttpStatusCode.InternalServerError,
+//            ApplicationException = _context.Exception
+//        }
+//    };
+
+//    result.ViewData = vdd;
+//    result.ViewData.Add("EventTime", DateTime.Now);
+
+//    _context.Result = result;
+//}
+
 ```

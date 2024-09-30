@@ -1,128 +1,121 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Caching.Memory;
 using src.App_Data.Entities;
 using src.App_Lib.Cache;
 using src.App_Lib.Configuration;
 using src.App_Lib.Configuration.Ext;
 using src.App_Lib.Tools;
 
-namespace src.App_Lib.Filters
+namespace src.App_Lib.Filters;
+
+public class DynamicRoleRequirementFilter : IAuthorizationFilter
 {
-    public class DynamicRoleRequirementFilter : IAuthorizationFilter
-    {
-        private readonly Type _type;
-        private readonly string? _memberName;
+	private readonly Type _type;
+	private readonly string? _memberName;
 
-        public DynamicRoleRequirementFilter(Type type, string? memberName)
-        {
-            _type = type;
-            _memberName = memberName;
-        }
+	public DynamicRoleRequirementFilter(Type type, string? memberName)
+	{
+		_type = type;
+		_memberName = memberName;
+	}
 
-        public void OnAuthorization(AuthorizationFilterContext context)
-        {
-            // SgkWebContext dbContext = context.HttpContext.RequestServices.GetService(typeof(SgkWebContext)) as SgkWebContext;
+	public async void OnAuthorization(AuthorizationFilterContext context)
+	{
+		// AppDbContext dbContext = context.HttpContext.RequestServices.GetService(typeof(AppDbContext)) as AppDbContext;
 
-            string ErisilmekIstenenKaynak_AdAlani = _type.Namespace;
-            string ErisilmekIstenenKaynak_TamAdi = _type.FullName;
-            string ErisilmekIstenenKaynak_UyeAdi = _type.Name;
+		string? ErisilmekIstenenKaynak_AdAlani = _type.Namespace;
+		string? ErisilmekIstenenKaynak_TamAdi = _type.FullName;
+		string? ErisilmekIstenenKaynak_UyeAdi = _type.Name;
 
-            string userSelectedRoleEnc = context.HttpContext.Session.GetKey<string>(Literals.SessionKey_SelectedRole);
-            string userSelectedRole = Security.Decrypt(userSelectedRoleEnc, context.HttpContext.Session.Id);
+		string? userSelectedRoleEnc = context.HttpContext.Session.GetKey<string>(Literals.SessionKey_SelectedRole);
+		
+		string? userSelectedRole = userSelectedRoleEnc != null 
+			? Security.Decrypt(userSelectedRoleEnc, context.HttpContext.Session.Id) 
+			: null
+		;
 
-            List<RoleMatrix> RolCodeIcinVeriTabanindakiYetkiTanimlari = StartupCache.GetRoleMatrix(roleCode: userSelectedRole).Result;
+		var memCache = context.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
 
-            bool RedEdildi = RedleriKontrolEt(
-                redListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == false).ToList(),
-                ErisilmekIstenenKaynak: $"{ErisilmekIstenenKaynak_TamAdi}.{_memberName}",
-                typeName: _type?.BaseType?.Name);
-            if (RedEdildi)
-            {
-                context.Result = new ForbidResult();
-                return;
-            }
+		List<RoleMatrix>? roleMatrix = await new _CacheRoleMatrix(memCache).GetData();
 
-            bool IzinVerildi = IzinleriKontrolEt(
-                izinListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == true).ToList(),
-                ErisilmekIstenenKaynak: $"{ErisilmekIstenenKaynak_TamAdi}.{_memberName}",
-                typeName: _type?.BaseType?.Name);
-            if (!IzinVerildi)
-            {
-                context.Result = new ForbidResult();
-                return;
-            }
-        }
+		IEnumerable<RoleMatrix>? RolCodeIcinVeriTabanindakiYetkiTanimlari = roleMatrix?.Where(i => i.RoleCode == userSelectedRole);
 
-        /// <summary>
-        /// RED durumları İZİN lerden önce kontrol edilmelidir.
-        /// typeName: nameof(Controller) or nameof(PageModel)
-        /// </summary>
-        public static bool RedleriKontrolEt(List<RoleMatrix> redListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
-        {
-            foreach (RoleMatrix yetki in redListesi)
-            {
-                if (typeName == nameof(PageModel))
-                {
-                    if (yetki.FullName == ErisilmekIstenenKaynak)
-                    {
-                        //red var
-                        return true;
-                    }
-                }
+		bool RedEdildi = DenyCheck(
+			redListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == false).ToList(),
+			ErisilmekIstenenKaynak: $"{ErisilmekIstenenKaynak_TamAdi}.{_memberName}",
+			typeName: _type?.BaseType?.Name);
+		if (RedEdildi)
+		{
+			context.Result = new ForbidResult();
+			return;
+		}
 
-                if (typeName == nameof(Controller))
-                {
-                    if (yetki.FullName == ErisilmekIstenenKaynak)
-                    {
-                        //red var
-                        return true;
-                    }
-                }
-            }
+		bool IzinVerildi = AllowCheck(
+			izinListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == true).ToList(),
+			ErisilmekIstenenKaynak: $"{ErisilmekIstenenKaynak_TamAdi}.{_memberName}",
+			typeName: _type?.BaseType?.Name);
+		if (!IzinVerildi)
+		{
+			context.Result = new ForbidResult();
+			return;
+		}
+	}
 
-            // red yok
-            return false;
-        }
+	/// <summary>
+	/// DenyCheck must run before AllowCheck
+	/// True if deny, False if NOT
+	/// </summary>
+	public bool DenyCheck(List<RoleMatrix> redListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
+	{
+		foreach (RoleMatrix yetki in redListesi)
+		{
+			if (typeName == nameof(PageModel))
+			{
+				if (yetki.FullName == ErisilmekIstenenKaynak)
+				{
+					return true;
+				}
+			}
 
-        /// <summary>
-        /// RED durumları İZİN lerden önce kontrol edilmelidir.
-        /// typeName: nameof(Controller) or nameof(PageModel)
-        /// </summary>
-        public static bool IzinleriKontrolEt(List<RoleMatrix> izinListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
-        {
-            foreach (RoleMatrix yetki in izinListesi)
-            {
-                if (typeName == nameof(PageModel))
-                {
-                    if (yetki.FullName == ErisilmekIstenenKaynak)
-                    {
-                        //izin var
-                        return true;
-                    }
-                }
+			if (typeName == nameof(Controller))
+			{
+				if (yetki.FullName == ErisilmekIstenenKaynak)
+				{
+					return true;
+				}
+			}
+		}
 
-                if (typeName == nameof(Controller))
-                {
-                    if (yetki.FullName == ErisilmekIstenenKaynak)
-                    {
-                        //izin var
-                        return true;
-                    }
-                }
-            }
+		return false;
+	}
 
-            // izin yok
-            return false;
-        }
-    }
+	/// <summary>
+	/// AllowCheck must run after DenyCheck
+	/// True if allow, False if NOT
+	/// </summary>
+	public bool AllowCheck(List<RoleMatrix> izinListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
+	{
+		foreach (RoleMatrix yetki in izinListesi)
+		{
+			if (typeName == nameof(PageModel))
+			{
+				if (yetki.FullName == ErisilmekIstenenKaynak)
+				{
+					return true;
+				}
+			}
 
+			if (typeName == nameof(Controller))
+			{
+				if (yetki.FullName == ErisilmekIstenenKaynak)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 }
-
-//StackTrace st = new StackTrace();
-//StackFrame currentFrame = st.GetFrame(1);
-//MethodBase method = currentFrame.GetMethod();

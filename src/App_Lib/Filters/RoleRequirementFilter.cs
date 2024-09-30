@@ -1,12 +1,9 @@
-using System;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using src.App_Data.Types;
 
 namespace src.App_Lib.Filters;
-
-
 
 public class RoleRequirementFilter : IAuthorizationFilter
 {

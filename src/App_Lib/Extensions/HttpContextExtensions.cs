@@ -15,11 +15,6 @@ public static class HttpContextExtensions
 
     public static string GetClientIP(this HttpContext context)
     {
-        /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
-        /// The X-Forwarded-For (XFF) request header is a de-facto standard header for identifying the originating IP address 
-        /// of a client connecting to a web server through a proxy server. 
-        /// Proxy olduğu durumlarda X-Forwarded-For 1. sırada olsun.
-
         string clientIP =
             (IPAddress.TryParse(context?.GetHeaderValue("X-Forwarded-For"), out IPAddress? ip2) ? ip2 : null)?.ToString() ??
             (IPAddress.TryParse(context?.GetHeaderValue("X-Original-Forwarded-For"), out IPAddress? ip3) ? ip3 : null)?.ToString() ??
@@ -28,7 +23,7 @@ public static class HttpContextExtensions
             (IPAddress.TryParse(context?.GetHeaderValue("CF-Connecting-IP"), out IPAddress? ip1) ? ip1 : null)?.ToString() ??
             context?.Features?.Get<IHttpConnectionFeature>()?.RemoteIpAddress?.ToString() ??
             context?.Request?.HttpContext?.Connection?.RemoteIpAddress?.ToString() ??
-            "cli.ip.unknown";
+            "client.ip.unknown";
 
         return clientIP;
     }
@@ -36,27 +31,29 @@ public static class HttpContextExtensions
     public static string? GetServerIP(this HttpContext context)
     {
         return
-            // LocalIpAddress belongs the server
             context?.Features?.Get<IHttpConnectionFeature>()?.LocalIpAddress?.ToString() ??
             context?.Request?.HttpContext?.Connection?.LocalIpAddress?.ToString() ??
-            "srv.ip.unknown";
+            "server.ip.unknown";
     }
 
-    public static (IPAddress? Ip, string IpList) GetServerIP()
+	[Obsolete("GetLocalIP & GetMachineName should be combined or reviewed")]
+    public static (IPAddress? Ip, string IpList) GetLocalIP()
     {
-        //System.Net.NetworkInformation.NetworkInterface[] nics = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces();
-        //foreach (System.Net.NetworkInformation.NetworkInterface adapter in nics)
+        System.Net.NetworkInformation.NetworkInterface[] nics 
+			= System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces();
+        
+		foreach (System.Net.NetworkInformation.NetworkInterface adapter in nics)
+		{
+			// adapter'den ip al
+		}
 
         List<IPAddress> list = Dns.GetHostEntry(Dns.GetHostName()).AddressList.ToList();
 
-        StringBuilder ipAddressList = new StringBuilder();
-        ipAddressList.AppendJoin(',', list);
-
-
-        return (list.FirstOrDefault(i => i.AddressFamily == AddressFamily.InterNetwork), ipAddressList.ToString());
+        return (list.FirstOrDefault(i => i.AddressFamily == AddressFamily.InterNetwork), string.Join(',', list));
     }
 
-    public static string GetMachineName(this IHttpContextAccessor httpContextAccessor)
+	[Obsolete("GetLocalIP & GetMachineName should be combined or reviewed")]
+	public static string GetMachineName(this IHttpContextAccessor httpContextAccessor)
     {
         try
         {

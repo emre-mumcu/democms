@@ -10,155 +10,161 @@ namespace src.App_Lib.Filters;
 
 public class WebExceptionFilter : ExceptionFilterAttribute
 {
-    private readonly IWebHostEnvironment _hostEnvironment;
+	private readonly IWebHostEnvironment _hostEnvironment;
 
-    private readonly IModelMetadataProvider _modelMetadataProvider;
+	private readonly IModelMetadataProvider _modelMetadataProvider;
 
-    public WebExceptionFilter(IWebHostEnvironment hostEnvironment, IModelMetadataProvider modelMetadataProvider)
-    {
-        _hostEnvironment = hostEnvironment;
-        _modelMetadataProvider = modelMetadataProvider;
-    }
+	public WebExceptionFilter(IWebHostEnvironment hostEnvironment, IModelMetadataProvider modelMetadataProvider)
+	{
+		_hostEnvironment = hostEnvironment;
+		_modelMetadataProvider = modelMetadataProvider;
+	}
 
-    public override void OnException(ExceptionContext context)
-    {
-        HttpStatusCode statusCode =
-            context.Exception as WebException != null && (HttpWebResponse)(context.Exception as WebException).Response != null
-            ? ((HttpWebResponse)(context.Exception as WebException).Response).StatusCode
-            : GetStatusCode(context.Exception.GetType());
+	public override void OnException(ExceptionContext context)
+	{
+		HttpStatusCode statusCode = HttpStatusCode.BadRequest;
 
-        if (_hostEnvironment.IsDevelopment())
-        {
-            ReturnContent(context, statusCode);
-        }
-        else
-        {
-            ReturnView(context, statusCode);
-        }
-    }
+		if (context.Exception != null
+			&& context.Exception is WebException
+			&& (context.Exception as WebException)!.Response != null
+			&& (context.Exception as WebException)!.Response is HttpWebResponse
+		)
+		{
+			statusCode = (((context.Exception as WebException)!.Response) as HttpWebResponse)!.StatusCode;
+		}
+		else if(context.Exception != null)
+		{
+			statusCode = GetStatusCode(context.Exception.GetType());
+		}		
 
-    private void ReturnContent(ExceptionContext context, HttpStatusCode statusCode)
-    {
-        context.ExceptionHandled = true;
+		if (_hostEnvironment.IsDevelopment())
+		{
+			ReturnContent(context, statusCode);
+		}
+		else
+		{
+			ReturnView(context, statusCode);
+		}
+	}
 
-        var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
+	private void ReturnContent(ExceptionContext context, HttpStatusCode statusCode)
+	{
+		context.ExceptionHandled = true;
 
-        var methodDescriptor = string.Format("{0}.{1}.{2}", controllerActionDescriptor.MethodInfo.ReflectedType.Namespace, controllerActionDescriptor.MethodInfo.ReflectedType.Name, controllerActionDescriptor.MethodInfo.Name);
+		var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
 
-        var controllerName = context.RouteData.Values["controller"];
+		var methodDescriptor = string.Format("{0}.{1}.{2}", controllerActionDescriptor.MethodInfo.ReflectedType.Namespace, controllerActionDescriptor.MethodInfo.ReflectedType.Name, controllerActionDescriptor.MethodInfo.Name);
 
-        var actionName = context.RouteData.Values["action"];
+		var controllerName = context.RouteData.Values["controller"];
 
-        HttpResponse response = context.HttpContext.Response;
+		var actionName = context.RouteData.Values["action"];
 
-        response.StatusCode = (int)statusCode;
+		HttpResponse response = context.HttpContext.Response;
 
-        response.ContentType = "application/json";
+		response.StatusCode = (int)statusCode;
 
-        var resultJ = JsonConvert.SerializeObject(new
-        {
-            MethodInfo = methodDescriptor,
-            ControllerName = controllerName,
-            actionName,
-            message = "An exception has occured!",
-            isError = true,
-            errCode = statusCode,
-            errMessage = context.Exception.Message,
-            errTrace = context.Exception.StackTrace
-        }, Formatting.Indented);
+		response.ContentType = "application/json";
 
-        response.ContentLength = resultJ.Length;
+		var resultJ = JsonConvert.SerializeObject(new
+		{
+			MethodInfo = methodDescriptor,
+			ControllerName = controllerName,
+			actionName,
+			message = "An exception has occured!",
+			isError = true,
+			errCode = statusCode,
+			errMessage = context.Exception.Message,
+			errTrace = context.Exception.StackTrace
+		}, Formatting.Indented);
 
-        response.WriteAsync(resultJ);
-    }
+		response.ContentLength = resultJ.Length;
 
-    private void ReturnView(ExceptionContext context, HttpStatusCode statusCode)
-    {
-        context.ExceptionHandled = true;
+		response.WriteAsync(resultJ);
+	}
 
-        ViewResult result = new ViewResult { ViewName = "_Error" }; // (Views/Shared/_Error.cshtml)
+	private void ReturnView(ExceptionContext context, HttpStatusCode statusCode)
+	{
+		context.ExceptionHandled = true;
 
-        WebExceptionViewModel viewmodel = new WebExceptionViewModel()
-        {
-            StatusCode = (int)statusCode,
-            Message = context.Exception.Message
-        };
+		ViewResult result = new ViewResult { ViewName = "_Error" }; // (Views/Shared/_Error.cshtml)
 
-        IModelMetadataProvider mmp = _modelMetadataProvider ?? new EmptyModelMetadataProvider();
+		WebExceptionViewModel viewmodel = new WebExceptionViewModel()
+		{
+			StatusCode = (int)statusCode,
+			Message = context.Exception.Message
+		};
 
-        ViewDataDictionary vdd = new ViewDataDictionary(mmp, context.ModelState)
-        {
-            Model = viewmodel
-        };
+		IModelMetadataProvider mmp = _modelMetadataProvider ?? new EmptyModelMetadataProvider();
 
-        result.ViewData = vdd;
+		ViewDataDictionary vdd = new ViewDataDictionary(mmp, context.ModelState)
+		{
+			Model = viewmodel
+		};
 
-        result.ViewData.Add("EventTime", DateTime.Now);
+		result.ViewData = vdd;
 
-        context.Result = result;
-    }
+		result.ViewData.Add("EventTime", DateTime.Now);
 
-    public enum Exceptions
-    {
-        NullReferenceException = 1,
-        FileNotFoundException = 2,
-        OverflowException = 3,
-        OutOfMemoryException = 4,
-        InvalidCastException = 5,
-        ObjectDisposedException = 6,
-        UnauthorizedAccessException = 7,
-        NotImplementedException = 8,
-        NotSupportedException = 9,
-        InvalidOperationException = 10,
-        TimeoutException = 11,
-        ArgumentException = 12,
-        FormatException = 13,
-        StackOverflowException = 14,
-        SqlException = 15,
-        IndexOutOfRangeException = 16,
-        IOException = 17
-    }
+		context.Result = result;
+	}
 
-    private HttpStatusCode GetStatusCode(Type exceptionType)
-    {
-        Exceptions tryParseResult;
+	public enum Exceptions
+	{
+		NullReferenceException = 1,
+		FileNotFoundException = 2,
+		OverflowException = 3,
+		OutOfMemoryException = 4,
+		InvalidCastException = 5,
+		ObjectDisposedException = 6,
+		UnauthorizedAccessException = 7,
+		NotImplementedException = 8,
+		NotSupportedException = 9,
+		InvalidOperationException = 10,
+		TimeoutException = 11,
+		ArgumentException = 12,
+		FormatException = 13,
+		StackOverflowException = 14,
+		SqlException = 15,
+		IndexOutOfRangeException = 16,
+		IOException = 17
+	}
 
-        if (Enum.TryParse(exceptionType.Name, out tryParseResult))
-        {
-            switch (tryParseResult)
-            {
-                case Exceptions.NullReferenceException: return HttpStatusCode.LengthRequired;
-                case Exceptions.FileNotFoundException: return HttpStatusCode.NotFound;
-                case Exceptions.OverflowException: return HttpStatusCode.RequestedRangeNotSatisfiable;
-                case Exceptions.OutOfMemoryException: return HttpStatusCode.ExpectationFailed;
-                case Exceptions.InvalidCastException: return HttpStatusCode.PreconditionFailed;
-                case Exceptions.ObjectDisposedException: return HttpStatusCode.Gone;
-                case Exceptions.UnauthorizedAccessException: return HttpStatusCode.Unauthorized;
-                case Exceptions.NotImplementedException: return HttpStatusCode.NotImplemented;
-                case Exceptions.NotSupportedException: return HttpStatusCode.NotAcceptable;
-                case Exceptions.InvalidOperationException: return HttpStatusCode.MethodNotAllowed;
-                case Exceptions.TimeoutException: return HttpStatusCode.RequestTimeout;
-                case Exceptions.ArgumentException: return HttpStatusCode.BadRequest;
-                case Exceptions.StackOverflowException: return HttpStatusCode.RequestedRangeNotSatisfiable;
-                case Exceptions.FormatException: return HttpStatusCode.UnsupportedMediaType;
-                case Exceptions.IOException: return HttpStatusCode.NotFound;
-                case Exceptions.IndexOutOfRangeException: return HttpStatusCode.ExpectationFailed;
-                default: return HttpStatusCode.InternalServerError;
-            }
-        }
-        else
-        {
-            return HttpStatusCode.InternalServerError;
-        }
-    }
+	private HttpStatusCode GetStatusCode(Type exceptionType)
+	{
+		Exceptions tryParseResult;
+
+		if (Enum.TryParse(exceptionType.Name, out tryParseResult))
+		{
+			switch (tryParseResult)
+			{
+				case Exceptions.NullReferenceException: return HttpStatusCode.LengthRequired;
+				case Exceptions.FileNotFoundException: return HttpStatusCode.NotFound;
+				case Exceptions.OverflowException: return HttpStatusCode.RequestedRangeNotSatisfiable;
+				case Exceptions.OutOfMemoryException: return HttpStatusCode.ExpectationFailed;
+				case Exceptions.InvalidCastException: return HttpStatusCode.PreconditionFailed;
+				case Exceptions.ObjectDisposedException: return HttpStatusCode.Gone;
+				case Exceptions.UnauthorizedAccessException: return HttpStatusCode.Unauthorized;
+				case Exceptions.NotImplementedException: return HttpStatusCode.NotImplemented;
+				case Exceptions.NotSupportedException: return HttpStatusCode.NotAcceptable;
+				case Exceptions.InvalidOperationException: return HttpStatusCode.MethodNotAllowed;
+				case Exceptions.TimeoutException: return HttpStatusCode.RequestTimeout;
+				case Exceptions.ArgumentException: return HttpStatusCode.BadRequest;
+				case Exceptions.StackOverflowException: return HttpStatusCode.RequestedRangeNotSatisfiable;
+				case Exceptions.FormatException: return HttpStatusCode.UnsupportedMediaType;
+				case Exceptions.IOException: return HttpStatusCode.NotFound;
+				case Exceptions.IndexOutOfRangeException: return HttpStatusCode.ExpectationFailed;
+				default: return HttpStatusCode.InternalServerError;
+			}
+		}
+		else
+		{
+			return HttpStatusCode.InternalServerError;
+		}
+	}
 }
 
-internal class WebExceptionViewModel
+public class WebExceptionViewModel
 {
-    public WebExceptionViewModel()
-    {
-    }
-
-    public int StatusCode { get; set; }
-    public string Message { get; set; }
+	public int StatusCode { get; set; }
+	public string? Message { get; set; }
 }

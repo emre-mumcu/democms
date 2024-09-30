@@ -16,6 +16,7 @@ public class ActionLog
 	public required string EventName { get; set; }
 	public string? EventData { get; set; }
 	public string? RouteData { get; set; }
+	public string? RouteValues { get; set; }
 	public string? ModelState { get; set; }
 	public string? Query { get; set; }
 	public string? QueryString { get; set; }
