@@ -13,7 +13,7 @@ public sealed class App
 		// _DataConfiguration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("data.json", true).Build();
 	}
 
-	public required IConfiguration _DataConfiguration { get; set; }
+	public required IConfigurationRoot _DataConfiguration { get; set; }
 	public required IWebHostEnvironment _WebHostEnvironment { get; set; }
 	public required IHttpContextAccessor _HttpContextAccessor { get; set; }
 	public required IServiceProvider _ServiceProvider { get; set; }

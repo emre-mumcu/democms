@@ -10,7 +10,7 @@ public static class ConfigureServices
 {
 	public static WebApplicationBuilder _ConfigureServices(this WebApplicationBuilder web_builder)
 	{
-		web_builder.Configuration.AddJsonFile($"data.json", optional: false, reloadOnChange: false);
+		web_builder.Configuration.AddJsonFile($"data.json", optional: false, reloadOnChange: false);		
 
 		web_builder.Services._InitMVC();
 
@@ -44,6 +44,10 @@ public static class ConfigureServices
 		web_builder.Services.AddScoped<WebExceptionFilter>();
 
 		web_builder.Services.AddScoped<GlobalExceptionFilter>();
+
+
+		// TODO: AppDbContext
+		web_builder.Services._AddDbContext();
 
 		return web_builder;
 	}

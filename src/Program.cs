@@ -1,20 +1,18 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 using src.App_Data;
 using src.App_Lib.Concrete;
 using src.App_Lib.Configuration;
-using System.Diagnostics;
+using src.App_Lib.Configuration.Ext;
 
 try
 {
     // var builder = WebApplication.CreateBuilder(args);
 
-    //Debugger.Launch();
-
-
 	var dataConfiguration = new ConfigurationBuilder().AddJsonFile("data.json").Build();
 
-    var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+	App.Instance._DataConfiguration = dataConfiguration; // Keep this at the top!
+
+	var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     {
         ApplicationName = typeof(Program).Assembly.FullName,
         ContentRootPath = Directory.GetCurrentDirectory(),
@@ -23,45 +21,6 @@ try
         Args = args
     })
     ._ConfigureServices();
-
-
-    builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) => {
-        options.UseSqlite(dataConfiguration.GetSection("Database:ConnectionString").Value);
-        //options.UseInternalServiceProvider(serviceProvider);
-    });
-
-    // builder.Configuration.AddJsonFile($"data.json", optional: true, reloadOnChange: false);
-
-    // builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-    //builder.Services.AddDbContext<AppDbContext>((provider, options) => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-    /*     builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
-        {
-            options.UseSqlite(dataConfiguration.GetSection("Database:ConnectionString").Value);
-            options.UseInternalServiceProvider(serviceProvider);
-        }); */
-
-    {   // DbContext:
-
-        // In this type of service registration, connection string is NOT provided to DI.
-        // It must be provided in DbContext's OnConfiguring method.
-        //builder.Services.AddDbContext<AppDbContext>();
-
-        // In this type of service registration, connection string is provided to DI.
-        // If DbContext is created by DI, connection string is present in the instance.
-        // But if user manually creates DbContext, the connection string must also be provided in DbContext's OnConfiguring method
-        // builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString: ""));
-
-        // Manually            
-        // builder.Services.AddScoped(x => { return new AppDbContext(); });
-    }
-
-    // builder.Services.AddDbContextFactory<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-    // builder.Services.AddDbContext<AppDbContext>();
-
-    // Keep it here above the builder.Build();
-    App.Instance._DataConfiguration = dataConfiguration;
 
 	var app = builder.Build()._Configure().Result;
 
@@ -72,8 +31,6 @@ try
     await DataSeeder.SeedData(app.Services);
 
     MenuBuilder.Configure(app.Services.GetRequiredService<IAuthorizationPolicyProvider>());
-
-
 
     app.Run();
 }
