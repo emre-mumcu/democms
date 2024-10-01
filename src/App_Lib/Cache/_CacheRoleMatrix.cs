@@ -9,5 +9,5 @@ public class _CacheRoleMatrix : CacheBase<RoleMatrix>
 {
 	public _CacheRoleMatrix(IMemoryCache memCache) : base(memCache) { }
 	private async Task<List<RoleMatrix>> FillCache() => await new AppDbContext().RoleMatrixes.ToListAsync();
-	public async Task<List<RoleMatrix>?> GetData(bool isDirty = false) => await GetData(this.GetType().Name, FillCache, isDirty);
+	public async Task<List<RoleMatrix>?> GetCache(bool isDirty = false) => await GetCache(FillCache, isDirty);
 }

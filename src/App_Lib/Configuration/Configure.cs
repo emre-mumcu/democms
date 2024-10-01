@@ -43,9 +43,7 @@ public static class Configure
 		app.MapRazorPages();
 
 		// Keep
-		await Task.FromResult(0);
-
-		CacheInit.Configure(app.Services.GetRequiredService<IMemoryCache>());
+		await Task.FromResult(0);		
 
 		return app;
 	}

@@ -8,6 +8,6 @@ namespace src.App_Lib.Cache;
 public class _CacheCities : CacheBase<City>
 {
 	public _CacheCities(IMemoryCache memCache) : base(memCache) { }
-	private async Task<List<City>> FillCache() => await new AppDbContext().Cities.ToListAsync();
-	public async Task<List<City>?> GetData(bool isDirty = false) => await GetData(this.GetType().Name, FillCache, isDirty);
+	private async Task<List<City>> SetCache() => await new AppDbContext().Cities.ToListAsync();
+	public async Task<List<City>?> GetCache(bool isDirty = false) => await GetCache(SetCache, isDirty);
 }

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using src.App_Lib.Configuration;
 
 namespace src.App_Lib.Cache;
 
@@ -13,9 +14,9 @@ public class CacheManager
 
 		_cacheOptions = new MemoryCacheEntryOptions
 		{
-			AbsoluteExpiration = DateTime.Now.AddMinutes(120),
-			Priority = CacheItemPriority.Normal,
-			SlidingExpiration = new TimeSpan(0, 20, 0)
+			AbsoluteExpiration = Literals.Cache_Absolute_Expiration,
+			SlidingExpiration = Literals.Cache_SlidingExpiration_Timespan,
+			Priority = Literals.Cache_Priority
 		};
 	}
 

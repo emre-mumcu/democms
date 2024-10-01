@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Caching.Memory;
+using src.App_Lib.Configuration;
 
 namespace src.App_Lib.Cache;
 
-public class CacheBase<T> /* where T : new() */
+public abstract class CacheBase<T> /* where T : new() */ // In order to use required parameters in T; new() constraint is removed
 {
 	private readonly IMemoryCache _memCache;
 	private readonly MemoryCacheEntryOptions _cacheOptions;
@@ -13,24 +14,20 @@ public class CacheBase<T> /* where T : new() */
 
 		_cacheOptions = new MemoryCacheEntryOptions
 		{
-			AbsoluteExpiration = DateTime.Now.AddMinutes(60),
-			SlidingExpiration = new TimeSpan(0, 20, 0),
-			Priority = CacheItemPriority.Normal
+			AbsoluteExpiration = Literals.Cache_Absolute_Expiration,
+			SlidingExpiration = Literals.Cache_SlidingExpiration_Timespan,
+			Priority = Literals.Cache_Priority
 		};
 	}
 
-	protected async Task<List<T>?> GetData(string cacheName, Func<Task<List<T>>> fillCacheData, bool isDirty = false)
+	protected async Task<List<T>?> GetCache(Func<Task<List<T>>> SetCache, bool isDirty = false)
 	{
 		try
 		{
-			if (isDirty) _memCache.Remove(cacheName);
-
-			List<T>? data;
-
-			if (!_memCache.TryGetValue(cacheName, out data))
-			{
-				data = await Task.Run(fillCacheData);
-				_memCache.Set(cacheName, data, _cacheOptions);
+			if (isDirty || !_memCache.TryGetValue(nameof(T), out List<T>? data))
+			{				
+				data = await Task.Run(SetCache);
+				_memCache.Set(nameof(T), data, _cacheOptions);
 			}
 
 			return data;

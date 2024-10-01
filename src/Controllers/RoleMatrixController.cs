@@ -65,7 +65,7 @@ public class RoleMatrixController : Controller
 
         // Update Cache
 		var memCache = HttpContext.RequestServices.GetRequiredService<IMemoryCache>();		
-        await new _CacheRoleMatrix(memCache).GetData(isDirty: true);
+        await new _CacheRoleMatrix(memCache).GetCache(isDirty: true);
     }
 
 }

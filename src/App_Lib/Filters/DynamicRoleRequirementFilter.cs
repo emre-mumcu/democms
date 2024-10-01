@@ -38,7 +38,7 @@ public class DynamicRoleRequirementFilter : IAuthorizationFilter
 
 		var memCache = context.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
 
-		List<RoleMatrix>? roleMatrix = await new _CacheRoleMatrix(memCache).GetData();
+		List<RoleMatrix>? roleMatrix = await new _CacheRoleMatrix(memCache).GetCache();
 
 		IEnumerable<RoleMatrix>? RolCodeIcinVeriTabanindakiYetkiTanimlari = roleMatrix?.Where(i => i.RoleCode == userSelectedRole);
 

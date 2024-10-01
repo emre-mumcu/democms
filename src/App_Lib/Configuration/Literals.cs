@@ -1,8 +1,15 @@
+using Microsoft.Extensions.Caching.Memory;
+
 namespace src.App_Lib.Configuration;
 
 public static class Literals
 {
 	public static string TraceId = nameof(TraceId);
+
+	// CACHE
+	public static DateTimeOffset Cache_Absolute_Expiration = DateTime.Now.AddMinutes(60);
+	public static TimeSpan Cache_SlidingExpiration_Timespan = TimeSpan.FromMinutes(20);
+	public static CacheItemPriority Cache_Priority = CacheItemPriority.Normal;
 
 	// SESSION        
 	public static string Session_Cookie_Name = "app.session.cookie";

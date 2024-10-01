@@ -119,7 +119,7 @@ namespace src.App_Lib.Tools
 
 			var memCache = _httpContextAccessor.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
 
-			List<RoleMatrix>? roleMatrix = new _CacheRoleMatrix(memCache).GetData().Result;
+			List<RoleMatrix>? roleMatrix = new _CacheRoleMatrix(memCache).GetCache().Result;
 
 			IEnumerable<RoleMatrix>? RolCodeIcinVeriTabanindakiYetkiTanimlari = roleMatrix?.Where(i => i.RoleCode == userSelectedRole);
 
