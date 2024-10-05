@@ -21,4 +21,9 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Areas/Admin/Models/" />
+    <Folder Include="Areas/Admin/ViewModels/" />
+  </ItemGroup>
+
 </Project>

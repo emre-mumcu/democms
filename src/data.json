@@ -2,8 +2,8 @@
     "Application": {
         "Name": "DemoCMS",
         "Version": "1.0.0.0",
-		"CDNPath": "/Users/emre/AppStore/Dev/DemoCMS/src/cdn",
-        "GalleryPath": "gallery"
+		"CDNPath": "/Users/emre/AppStore/Dev/DemoCMS/src/wwwroot",
+        "GalleryPath": "/Users/emre/AppStore/Dev/DemoCMS/src/wwwroot"
     },
     "Database": {
         "ConnectionString": "Data Source=app.db;"

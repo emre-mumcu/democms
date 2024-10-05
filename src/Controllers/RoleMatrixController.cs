@@ -14,12 +14,6 @@ namespace src.Controllers;
 
 public class RoleMatrixController : Controller
 {
-    // GET: RoleMatrixController
-    public ActionResult Index()
-    {
-        return View();
-    }
-
     [RoleRequirement(AllowedRoles: new EnumRoles[] { EnumRoles.ADMINISTRATOR })]
     public IActionResult YetkiMatrisi([FromServices] AppDbContext appDbContext)
     {

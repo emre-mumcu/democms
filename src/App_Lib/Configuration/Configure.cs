@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,23 @@ public static class Configure
 	{
 		var staticFilePath = app.Services.GetRequiredService<IOptions<DataOptions>>()?.Value?.Application?.CdnPath ?? "wwwroot";
 
-		app._InitApp();
+		if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+		{
+			app.UseDeveloperExceptionPage();
+		}
+		else
+		{
+			app.UseExceptionHandler("/Error");
+			app.UseHsts();
+		}
+
+
+		app.UseForwardedHeaders(new ForwardedHeadersOptions
+		{
+			ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+		});
+
+		app.UseRequestLocalization();
 
 		app.UseHttpsRedirection();
 
@@ -34,16 +51,24 @@ public static class Configure
 
 		app._UseAuthorization();
 
-		app.UseHsts();		
+		app.UseHsts();
 
 		app.MapDefaultControllerRoute();
 
-		app.MapControllers();
+		// app.MapControllers();
+
+		app.MapControllerRoute(
+			name: "areas",
+			pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+		app.MapControllerRoute(
+			name: "default",
+			pattern: "{controller=Home}/{action=Index}/{id?}");
 
 		app.MapRazorPages();
 
 		// Keep
-		await Task.FromResult(0);		
+		await Task.FromResult(0);
 
 		return app;
 	}

@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using src.App_Lib.Abstract;
 using src.App_Lib.Concrete;
 using src.App_Lib.Configuration.Ext;
@@ -10,10 +13,33 @@ public static class ConfigureServices
 {
 	public static WebApplicationBuilder _ConfigureServices(this WebApplicationBuilder web_builder)
 	{
-		// App.Instance._DataConfiguration
-		// web_builder.Configuration.AddJsonFile($"data.json", optional: false, reloadOnChange: false);		
+		web_builder.Configuration.AddJsonFile($"data.json", optional: false, reloadOnChange: false);
 
-		web_builder.Services._InitMVC();
+		web_builder.Services._AddRequestLocalization();
+
+		IMvcBuilder mvcBuilder = web_builder.Services.AddMvc(config =>
+		{
+			config.Filters.Add(new AuthorizeFilter());
+			config.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+		})
+		// Use session based TempData instead of cookie based TempData
+		.AddSessionStateTempDataProvider();
+
+		mvcBuilder._AddJsonOptions();
+
+		if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+		{
+			// dotnet add package Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
+			mvcBuilder.AddRazorRuntimeCompilation();    
+		}
+
+
+
+		web_builder.Services.AddHttpContextAccessor();
+
+		web_builder.Services.AddDataProtection();
+
+		web_builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
 		web_builder.Services._AddCookieConfiguration();
 
