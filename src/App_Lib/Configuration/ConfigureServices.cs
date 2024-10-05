@@ -33,8 +33,6 @@ public static class ConfigureServices
 			mvcBuilder.AddRazorRuntimeCompilation();    
 		}
 
-
-
 		web_builder.Services.AddHttpContextAccessor();
 
 		web_builder.Services.AddDataProtection();
@@ -54,10 +52,9 @@ public static class ConfigureServices
 		web_builder.Services._ConfigureViewLocationExpander();
 
 		// TODO: MockPolicyEvaluator
-		//#if DEBUG
-		//            // TODO MockPolicyEvaluator !!!
-		//            web_builder.Services.AddSingleton<IPolicyEvaluator, MockPolicyEvaluator>();
-		//#endif
+		// #if DEBUG
+		// web_builder.Services.AddSingleton<IPolicyEvaluator, MockPolicyEvaluator>();
+		// #endif
 
 		web_builder.Services.AddScoped<IActionLogService, ActionLogService>();
 
@@ -67,13 +64,10 @@ public static class ConfigureServices
 
 		web_builder.Services.AddScoped<ManagerTools>();
 
-		// TODO:  Hata Yönetimi
 		web_builder.Services.AddScoped<WebExceptionFilter>();
 
 		web_builder.Services.AddScoped<GlobalExceptionFilter>();
 
-
-		// TODO: AppDbContext
 		web_builder.Services._AddDbContext();
 
 		return web_builder;

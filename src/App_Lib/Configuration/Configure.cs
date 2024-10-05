@@ -11,8 +11,7 @@ public static class Configure
 {
 	public async static Task<WebApplication> _Configure(this WebApplication app)
 	{
-		var staticFilePath = app.Services.GetRequiredService<IOptions<DataOptions>>()?.Value?.Application?.CdnPath ?? "wwwroot";
-
+		
 		if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 		{
 			app.UseDeveloperExceptionPage();
@@ -22,7 +21,6 @@ public static class Configure
 			app.UseExceptionHandler("/Error");
 			app.UseHsts();
 		}
-
 
 		app.UseForwardedHeaders(new ForwardedHeadersOptions
 		{
@@ -35,11 +33,16 @@ public static class Configure
 
 		app._UseSCP();
 
-		app.UseStaticFiles(new StaticFileOptions
+		var staticFilePath = app.Services.GetRequiredService<IOptions<DataOptions>>()?.Value?.Application?.CdnPath;
+
+		if(staticFilePath != null)
 		{
-			FileProvider = new PhysicalFileProvider(staticFilePath),
-			RequestPath = "/cdn"
-		});
+			app.UseStaticFiles(new StaticFileOptions
+			{
+				FileProvider = new PhysicalFileProvider(staticFilePath),
+				RequestPath = "/cdn"
+			});
+		}
 
 		app._UseOptions();
 
@@ -47,15 +50,15 @@ public static class Configure
 
 		app.UseRouting();
 
-		app._UseAuthentication();
+		app.UseCookiePolicy();
 
-		app._UseAuthorization();
+		app.UseAuthentication();
+
+		app.UseAuthorization();
 
 		app.UseHsts();
 
-		app.MapDefaultControllerRoute();
-
-		// app.MapControllers();
+		// app.MapDefaultControllerRoute();		
 
 		app.MapControllerRoute(
 			name: "areas",
@@ -64,6 +67,8 @@ public static class Configure
 		app.MapControllerRoute(
 			name: "default",
 			pattern: "{controller=Home}/{action=Index}/{id?}");
+
+		app.MapControllers();
 
 		app.MapRazorPages();
 

@@ -41,21 +41,15 @@ public static class AuthenticationExtension
 
 		return services;
 	}
-
-	public static IApplicationBuilder _UseAuthentication(this WebApplication app)
-	{
-		app.UseAuthentication();
-
-		return app;
-	}
 }
 
+/// <summary>
+/// CookieAuthenticationEvents run in every request
+/// </summary>
 public class CustomCookieAuthenticationEvents : CookieAuthenticationEvents
 {
 	public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
 	{
-		// TODO: CustomCookieAuthenticationEvents runs in every request
-
 		bool login = context.HttpContext.Session.GetKey<bool>(Literals.SessionKey_Login);
 
 		if (context.Principal != null && context.Principal.Identity != null)

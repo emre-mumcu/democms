@@ -9,7 +9,8 @@ public static class Cookie
     {
         services.Configure<CookiePolicyOptions>(options =>
         {
-            options.CheckConsentNeeded = context => true;
+			// Require consent for non-essential cookies
+			options.CheckConsentNeeded = context => true;			 
             options.MinimumSameSitePolicy = SameSiteMode.None;
             options.HttpOnly = HttpOnlyPolicy.Always;
             options.Secure = CookieSecurePolicy.SameAsRequest;
@@ -21,12 +22,5 @@ public static class Cookie
 		});
 
         return services;
-    }
-
-    public static IApplicationBuilder _UseCookie(this WebApplication app)
-    {
-        app.UseCookiePolicy();
-
-        return app;
     }
 }

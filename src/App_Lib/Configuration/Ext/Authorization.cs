@@ -1,8 +1,5 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Policy;
 using src.App_Lib.Abstract;
 using src.App_Lib.Concrete;
 using src.App_Lib.Handlers;
@@ -21,10 +18,8 @@ public static class Authorization
              * Defaults to require authenticated users.
              * 
              * The DefaultPolicy is the policy that is applied when:
-             *      (*) You specify that authorization is required, either using RequireAuthorization(), by applying an AuthorizeFilter, 
-             *          or by using the[Authorize] attribute on your actions / Razor Pages.
-             *      (*) You don't specify which policy to use.
-             *      
+             *      (*) You specify that authorization is required, either using RequireAuthorization(), by applying an AuthorizeFilter, or by using the[Authorize] attribute on your actions / Razor Pages.
+             *      (*) You don't specify which policy to use.             
              */
 
 			// options.DefaultPolicy = new AuthorizationPolicyBuilder()
@@ -57,6 +52,7 @@ public static class Authorization
 
 			options.FallbackPolicy = AuthorizationPolicyLibrary.fallbackPolicy;
 
+			// TODO: Configure authorization handlers should be invoked after AuthorizationHandlerContext.HasFailed
 			options.InvokeHandlersAfterFailure = false;
 
 			// Custom Policies:            
@@ -72,13 +68,6 @@ public static class Authorization
 		services.AddSingleton<IAuthorize, TestAuthorize>();
 
 		return services;
-	}
-
-	public static IApplicationBuilder _UseAuthorization(this WebApplication app)
-	{
-		app.UseAuthorization();
-
-		return app;
 	}
 }
 
@@ -109,7 +98,7 @@ public static class AuthorizationPolicyLibrary
 		.RequireAuthenticatedUser()
 		.AddRequirements(new BaseRequirement())
 		.AddRequirements(new UserRequirement("ADMINISTRATOR"))
-		//.RequireRole("ADMIN")
+		//.RequireRole("ADMINISTRATOR")
 		.Build();
 
 	//public static AuthorizationPolicy assertionPolicy = new AuthorizationPolicyBuilder()
