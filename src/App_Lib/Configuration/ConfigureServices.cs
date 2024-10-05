@@ -10,7 +10,8 @@ public static class ConfigureServices
 {
 	public static WebApplicationBuilder _ConfigureServices(this WebApplicationBuilder web_builder)
 	{
-		web_builder.Configuration.AddJsonFile($"data.json", optional: false, reloadOnChange: false);		
+		// App.Instance._DataConfiguration
+		// web_builder.Configuration.AddJsonFile($"data.json", optional: false, reloadOnChange: false);		
 
 		web_builder.Services._InitMVC();
 

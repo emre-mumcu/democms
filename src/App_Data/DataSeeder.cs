@@ -127,8 +127,7 @@ public static class DataSeeder
 	}
 
 	/// <summary>
-	/// In Program.cs; ad te following code just before app.run();
-	/// await DataSeeder.SeedData(app.Services);
+	/// Called from Program.cs: await DataSeeder.SeedData(app.Services);
 	/// </summary>
 	public static async Task SeedData(IServiceProvider services)
 	{

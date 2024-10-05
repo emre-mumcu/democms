@@ -7,32 +7,26 @@ using src.App_Lib.Configuration;
 
 try
 {
-	// var builder = WebApplication.CreateBuilder(args);
-
-	var dataConfiguration = new ConfigurationBuilder().AddJsonFile("data.json").Build();
-
-	App.Instance._DataConfiguration = dataConfiguration; // Keep this at the top!
+	App.Instance._DataConfiguration = new ConfigurationBuilder().AddJsonFile("data.json").Build();
 
 	var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 	{
 		ApplicationName = typeof(Program).Assembly.FullName,
 		ContentRootPath = Directory.GetCurrentDirectory(),
 		EnvironmentName = Environments.Development,
-		WebRootPath = dataConfiguration.GetSection("Application").GetSection("CDNPath").Value,
+		WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"),
 		Args = args
 	})
 	._ConfigureServices();
 
 	var app = builder.Build()._Configure().Result;
 
-	App.Instance._WebHostEnvironment = app.Services.GetRequiredService<IWebHostEnvironment>();
-	App.Instance._HttpContextAccessor = app.Services.GetRequiredService<IHttpContextAccessor>();
-	App.Instance._ServiceProvider = app.Services;
+	App.Instance.SetLocator(app.Services);	
 
 	await DataSeeder.SeedData(app.Services);
 
 	{
-		// Static Class Configurations
+		// Static Configurations
 
 		CacheKicker.Instance.Configure(app.Services.GetRequiredService<IMemoryCache>()).InitCachesAsync();
 		MenuBuilder.Configure(app.Services.GetRequiredService<IAuthorizationPolicyProvider>());
