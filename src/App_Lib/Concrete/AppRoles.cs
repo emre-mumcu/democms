@@ -79,6 +79,7 @@ public class AppRoles
 		return pages;
 	}
 
+	/// <returns>All controllers, actions and pages having DynamicRoleRequirementAttribute</returns>
 	public List<AppRole>? GetAll()
 	{
 		List<AppRole>? all = Enumerable.Empty<AppRole>()

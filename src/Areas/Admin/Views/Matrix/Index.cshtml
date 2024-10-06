@@ -37,58 +37,32 @@
 							<tr>
 								<th>Kaynak Adı</th>
 								<th>İşlem Adı</th>
-								@foreach (var item in Model.RoleDescriptionAttributes ?? Enumerable.Empty<RoleDescriptionAttribute>())
+								@foreach (var rda in Model.RoleDescriptionAttributes ?? Enumerable.Empty<RoleDescriptionAttribute>())
 								{
-									if(item.IsNotNull())
+									if (rda.IsNotNull())
 									{
 										<th style="text-align:center">
-											@item.RoleName
+											@rda.RoleName
 										</th>
 									}
-								}
-
-
-								@foreach (EnumRoles re in (EnumRoles[])Enum.GetValues(typeof(EnumRoles)))
-								{
-									MemberInfo memberInfo = re.GetType().GetMember(re.ToString()).First();
-									RoleDescriptionAttribute rda = (RoleDescriptionAttribute)memberInfo.GetCustomAttributes(typeof(RoleDescriptionAttribute),
-									false).First();
-
-									<th style="text-align:center">
-										@rda.RoleName
-									</th>
 								}
 							</tr>
 						</thead>
 
-						@foreach (var item in Model.AppRoles)
+						@foreach (var item in Model.AppRoles ?? Enumerable.Empty<Models.AppRole>())
 						{
 							<tbody>
 								<tr>
 									<td style="font-weight:bold">@item.Name</td>
 									<td>@item.MemberName</td>
-									@foreach (var item2 in Model.RoleDescriptionAttributes ??
-																	Enumerable.Empty<RoleDescriptionAttribute>())
+									@foreach (var rda in Model.RoleDescriptionAttributes ?? Enumerable.Empty<RoleDescriptionAttribute>())
 									{
-										if (item2.IsNotNull())
-										{
-											<th style="text-align:center">
-												@item2.RoleName
-											</th>
-										}
-									}
-									@foreach (EnumRoles re in (EnumRoles[])Enum.GetValues(typeof(EnumRoles)))
-									{
-										MemberInfo memberInfo = re.GetType().GetMember(re.ToString()).First();
-										RoleDescriptionAttribute rda = (RoleDescriptionAttribute)memberInfo.GetCustomAttributes(typeof(RoleDescriptionAttribute),
-										false).First();
-
 										bool isRoleExistsAndAllowed = Model.DynamicRoles
-											.Where(r => (r.FullName == string.Concat(item.FullName, ".", item.MemberName) &&
-											r.RoleCode == re.ToString() && r.Allow))
-											.Any();
+										?.Where(r => (r.FullName == string.Concat(item.FullName, ".", item.MemberName) &&
+										(r.RoleCode == rda.RoleName) && r.Allow))
+										.Any() ?? false;
 
-										string roleName = Security.Encrypt(re.ToString(), sessionID);
+										string roleName = Security.Encrypt(rda.RoleName, sessionID);
 										string IsChecked = isRoleExistsAndAllowed ? ("checked") : ("");
 
 										<td style="text-align:center">
@@ -139,7 +113,7 @@
 
 			$.ajax({
 				type: "POST",
-				url: '@Url.Content("~/User/YetkiIslem")',
+				url: '@Url.Content("~/Admin/Matrix/Index")',
 				data: formData,
 				processData: false,
 				contentType: false,

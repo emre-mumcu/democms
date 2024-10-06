@@ -1,3 +1,35 @@
+```cs
+
+// Eski kod:
+@foreach (EnumRoles re in (EnumRoles[])Enum.GetValues(typeof(EnumRoles)))
+{
+	MemberInfo memberInfo = re.GetType().GetMember(re.ToString()).First();
+	RoleDescriptionAttribute rda = (RoleDescriptionAttribute)memberInfo.GetCustomAttributes(typeof(RoleDescriptionAttribute),
+	false).First();
+
+	bool isRoleExistsAndAllowed = Model.DynamicRoles
+		?.Where(r => (r.FullName == string.Concat(item.FullName, ".", item.MemberName) && (r.RoleCode == re.ToString()) && r.Allow))
+		.Any() ?? false;
+
+	string roleName = Security.Encrypt(re.ToString(), sessionID);
+	string IsChecked = isRoleExistsAndAllowed ? ("checked") : ("");
+
+	<td style="text-align:center">
+		<label class="switch">
+			<input type="checkbox" data-fullname="@item.FullName"
+				data-membername="@item.MemberName" data-role="@roleName"
+				onclick="YetkiIslem(this)" @IsChecked>
+			<span class="slider round"></span>
+		</label>
+	</td>
+}
+
+```
+
+
+
+
+
 # Configuration Extension Template
 
 ```cs

@@ -18,6 +18,7 @@ namespace src.Areas.Admin.Controllers
 	[Area("Admin")]
 	public class MatrixController : Controller
     {
+		[HttpGet]
 		[RoleRequirement(AllowedRoles: new EnumRoles[] { EnumRoles.ADMINISTRATOR })]
 		public IActionResult Index([FromServices] AppDbContext appDbContext)
 		{
@@ -33,8 +34,9 @@ namespace src.Areas.Admin.Controllers
 			return View(model: vm);
 		}
 
+		[HttpPost]
 		[RoleRequirement(AllowedRoles: new EnumRoles[] { EnumRoles.ADMINISTRATOR })]
-		public async void UpdateRole([FromServices] AppDbContext appDbContext, string Yetki, string Role, int Durum)
+		public async void Index([FromServices] AppDbContext appDbContext, string Yetki, string Role, int Durum)
 		{
 			string roleName = Security.Decrypt(Role, HttpContext.Session.Id);
 			bool roleDurum = Durum == 1;
@@ -49,8 +51,6 @@ namespace src.Areas.Admin.Controllers
 					RoleCode = roleName,
 					FullName = Yetki,
 					Allow = roleDurum,
-					DepartmentId = (User.Identity as ClaimsIdentity).GetDepartment(),
-					UserName = (User.Identity as ClaimsIdentity).GetNameIdentifier()
 				};
 
 				appDbContext.DynamicRoles.Add(yetki);
@@ -59,8 +59,6 @@ namespace src.Areas.Admin.Controllers
 			else
 			{
 				mevcutYetki.Allow = roleDurum;
-				mevcutYetki.DepartmentId = (User.Identity as ClaimsIdentity).GetDepartment();
-				mevcutYetki.UserName = (User.Identity as ClaimsIdentity).GetNameIdentifier();
 
 				appDbContext.DynamicRoles.Update(mevcutYetki);
 				appDbContext.SaveChanges();
