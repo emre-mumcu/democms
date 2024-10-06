@@ -2,6 +2,7 @@
 @using System.Reflection
 @using src.App_Data.Types
 @using src.App_Lib.Attributes
+@using src.App_Lib.Extensions
 @using src.App_Lib.Tools
 
 @inject IHttpContextAccessor HttpContextAccessor
@@ -36,6 +37,17 @@
 							<tr>
 								<th>Kaynak Adı</th>
 								<th>İşlem Adı</th>
+								@foreach (var item in Model.RoleDescriptionAttributes ?? Enumerable.Empty<RoleDescriptionAttribute>())
+								{
+									if(item.IsNotNull())
+									{
+										<th style="text-align:center">
+											@item.RoleName
+										</th>
+									}
+								}
+
+
 								@foreach (EnumRoles re in (EnumRoles[])Enum.GetValues(typeof(EnumRoles)))
 								{
 									MemberInfo memberInfo = re.GetType().GetMember(re.ToString()).First();
@@ -55,6 +67,16 @@
 								<tr>
 									<td style="font-weight:bold">@item.Name</td>
 									<td>@item.MemberName</td>
+									@foreach (var item2 in Model.RoleDescriptionAttributes ??
+																	Enumerable.Empty<RoleDescriptionAttribute>())
+									{
+										if (item2.IsNotNull())
+										{
+											<th style="text-align:center">
+												@item2.RoleName
+											</th>
+										}
+									}
 									@foreach (EnumRoles re in (EnumRoles[])Enum.GetValues(typeof(EnumRoles)))
 									{
 										MemberInfo memberInfo = re.GetType().GetMember(re.ToString()).First();

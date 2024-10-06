@@ -2,25 +2,32 @@ using System.ComponentModel;
 using System.Reflection;
 using src.App_Data.Types;
 using src.App_Lib.Attributes;
-using System.Linq;
 
 namespace src.App_Lib.Extensions;
 
 public static class EnumExtensions
 {
-	public static IEnumerable<TEnum> GetAllValues<TEnum>(this TEnum enumType) where TEnum : Enum
+	/// <summary>
+	/// EnumExtensions.GetAllValues<TEnum>();
+	/// </summary>	
+	/// <returns>All members of TEnum</returns>
+	public static IEnumerable<TEnum> GetAllValues<TEnum>() where TEnum : Enum
 	{
 		return Enum.GetValues(typeof(TEnum)).Cast<TEnum>();
 	}
 
-	public static IEnumerable<TAttribute> GetAllAttributes<TEnum, TAttribute>(this TEnum enumType) where TEnum : Enum where TAttribute: Attribute
+	/// <summary>
+	/// EnumExtensions.GetAllAttributes<TEnum, TAttribute>()
+	/// </summary>
+	/// <returns>All TAttributes of all members of TEnum</returns>
+	public static IEnumerable<TAttribute> GetAllAttributes<TEnum, TAttribute>() where TEnum : Enum where TAttribute: Attribute
 	{
 		IEnumerable<TAttribute> attributes = Enumerable.Empty<TAttribute>();
 
 		Enum.GetValues(typeof(TEnum)).Cast<TEnum>().ToList().ForEach(item => {
 			attributes.Concat(item.GetAttributes<TAttribute>() ?? Enumerable.Empty<TAttribute>());
 		});
-		
+
 		return attributes;
 	}
 

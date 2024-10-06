@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Caching.Memory;
 using src.App_Data;
 using src.App_Data.Entities;
@@ -20,11 +21,13 @@ namespace src.Areas.Admin.Controllers
 		[RoleRequirement(AllowedRoles: new EnumRoles[] { EnumRoles.ADMINISTRATOR })]
 		public IActionResult Index([FromServices] AppDbContext appDbContext)
 		{
+			var vals = EnumExtensions.GetAllValues<EnumRoles>();
+
 			MatrixVM vm = new MatrixVM() 
 			{
 				AppRoles = new AppRoles().GetAll(),
 				DynamicRoles = appDbContext.DynamicRoles.ToList(),
-				RoleDescriptionAttributes = EnumRoles.ADMINISTRATOR.GetAttributes<>
+				RoleDescriptionAttributes = EnumExtensions.GetAllAttributes<EnumRoles, RoleDescriptionAttribute>()
 			};
 
 			return View(model: vm);

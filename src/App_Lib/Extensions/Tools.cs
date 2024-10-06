@@ -4,7 +4,18 @@ namespace src.App_Lib.Extensions;
 
 public static class Tools
 {
-    public static string ToStringEx(this RouteValueDictionary values)
+	public static bool IsNull<T>(this T obj)
+	{
+		// return obj == null || obj.Equals(default(T));
+		return EqualityComparer<T>.Default.Equals(obj, default(T));
+	}
+
+	public static bool IsNotNull<T>(this T obj)
+	{
+		return !obj.IsNull();
+	}
+
+	public static string ToStringEx(this RouteValueDictionary values)
     {
         try
         {
