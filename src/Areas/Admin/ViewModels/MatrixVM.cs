@@ -5,6 +5,6 @@ namespace src.Areas.Admin.ViewModels;
 
 public class MatrixVM
 {
-	public List<AppRole>? AppRoles { get; set; }
-	public List<DynamicRole>? DynamicRoles { get; set; }
+	public IEnumerable<AppRole>? AppRoles { get; set; }
+	public IEnumerable<DynamicRole>? DynamicRoles { get; set; }
 }

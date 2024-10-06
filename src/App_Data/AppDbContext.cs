@@ -3,6 +3,10 @@ using src.App_Data.Entities;
 using src.App_Data.LookUps;
 using src.App_Lib.Configuration;
 
+// dotnet build
+// dotnet ef migrations add Mig0 -o App_Data/Migrations
+// dotnet ef database update
+
 namespace src.App_Data
 {
 	public class AppDbContext : DbContext
@@ -46,6 +50,6 @@ namespace src.App_Data
 		// Entities
 		public virtual DbSet<ActionLog> ActionLogs => Set<ActionLog>();
 		public virtual DbSet<ExceptionLog> ExceptionLogs => Set<ExceptionLog>();
-		public virtual DbSet<DynamicRole> RoleMatrixes => Set<DynamicRole>();
+		public virtual DbSet<DynamicRole> DynamicRoles => Set<DynamicRole>();
 	}
 }
