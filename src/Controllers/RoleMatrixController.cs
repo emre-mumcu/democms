@@ -9,6 +9,8 @@ using src.App_Lib.Attributes;
 using src.App_Lib.Cache;
 using src.App_Lib.Extensions;
 using src.App_Lib.Tools;
+using src.Areas.Admin.Models;
+using src.Areas.Admin.ViewModels;
 
 namespace src.Controllers;
 
@@ -17,9 +19,9 @@ public class RoleMatrixController : Controller
     [RoleRequirement(AllowedRoles: new EnumRoles[] { EnumRoles.ADMINISTRATOR })]
     public IActionResult YetkiMatrisi([FromServices] AppDbContext appDbContext)
     {
-        YetkiMatrisiViewModel vm = new YetkiMatrisiViewModel();
-        vm.UygulamaYetkiListesi = new UygulamaYetkileri().YetkiListesi();
-        vm.VeritabaniYetkiListesi = appDbContext.RoleMatrixes.ToList();
+		MatrixVM vm = new MatrixVM();
+        vm.AppRoles = new UygulamaYetkileri().YetkiListesi();
+        vm.DynamicRoles = appDbContext.RoleMatrixes.ToList();
 
         return View(model: vm);
     }
@@ -31,11 +33,11 @@ public class RoleMatrixController : Controller
         bool roleDurum = Durum == 1;
 
         // check if yetli && role defined earlier:
-        RoleMatrix? mevcutYetki = appDbContext.RoleMatrixes.Where(y => y.FullName == Yetki && y.RoleCode == roleName).FirstOrDefault();
+        DynamicRole? mevcutYetki = appDbContext.RoleMatrixes.Where(y => y.FullName == Yetki && y.RoleCode == roleName).FirstOrDefault();
 
         if (mevcutYetki is null)
         {
-            RoleMatrix yetki = new RoleMatrix()
+            DynamicRole yetki = new DynamicRole()
             {
                 RoleCode = roleName,
                 FullName = Yetki,
@@ -64,36 +66,17 @@ public class RoleMatrixController : Controller
 
 }
 
-public class YetkiMatrisiViewModel
-{
-    public List<RoleItem> UygulamaYetkiListesi { get; set; }
-    public List<RoleMatrix> VeritabaniYetkiListesi { get; set; }
-}
-
-
-
-public class RoleItem
-{
-    public string TypeName { get; set; }
-    public string Namespace { get; set; }
-    public string FullName { get; set; }
-    public string Name { get; set; }
-    public string MemberName { get; set; }
-    public string ReturnType { get; set; }
-    public string GuidString { get; set; }
-}
-
 public class UygulamaYetkileri
 {
-    public List<RoleItem> YetkiListesi()
+    public List<AppRole> YetkiListesi()
     {
         Assembly? asm = Assembly.GetAssembly(typeof(Program));
 
         var controllers = asm?.GetTypes()
             .Where(type => typeof(Microsoft.AspNetCore.Mvc.Controller).IsAssignableFrom(type))
             .Where(t => t.IsDefined(typeof(DynamicRoleRequirementAttribute)))
-            .Select(i => new RoleItem
-            {
+            .Select(i => new AppRole
+			{
                 TypeName = i?.BaseType.FullName,
                 Namespace = i?.Namespace,
                 FullName = i?.FullName,
@@ -108,8 +91,8 @@ public class UygulamaYetkileri
             .Where(type => typeof(Microsoft.AspNetCore.Mvc.Controller).IsAssignableFrom(type))
             .SelectMany(type => type.GetMethods(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public))
             .Where(t => t.IsDefined(typeof(DynamicRoleRequirementAttribute)))
-            .Select(i => new RoleItem
-            {
+            .Select(i => new AppRole
+			{
                 TypeName = i?.MemberType.ToString(),
                 Namespace = i?.DeclaringType?.Namespace,
                 FullName = i?.DeclaringType?.FullName,
@@ -123,8 +106,8 @@ public class UygulamaYetkileri
         var pages = asm?.GetTypes()
             .Where(type => typeof(Microsoft.AspNetCore.Mvc.RazorPages.PageModel).IsAssignableFrom(type))
             .Where(t => t.IsDefined(typeof(DynamicRoleRequirementAttribute)))
-            .Select(i => new RoleItem
-            {
+            .Select(i => new AppRole
+			{
                 TypeName = i?.MemberType.ToString(),
                 Namespace = i?.Namespace,
                 FullName = i?.FullName,
@@ -135,7 +118,7 @@ public class UygulamaYetkileri
             })
             .ToList();
 
-        List<RoleItem> allItems = controllers.Concat(actions).Concat(pages).ToList();
+        List<AppRole> allItems = controllers.Concat(actions).Concat(pages).ToList();
 
         return allItems;
     }

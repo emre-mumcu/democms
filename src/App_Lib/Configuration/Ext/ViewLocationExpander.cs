@@ -5,7 +5,7 @@ namespace src.App_Lib.Configuration.Ext;
 public static class ViewLocation
 {
 	public static IServiceCollection _ConfigureViewLocationExpander(this IServiceCollection services)
-	{
+	{		
 		services.Configure<RazorViewEngineOptions>(options =>
 		{
 			options.ViewLocationExpanders.Add(new ViewLocationExpander());

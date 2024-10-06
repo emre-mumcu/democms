@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using src.App_Lib.Cache;
 using src.App_Lib.Configuration.Ext;
 
 namespace src.App_Lib.Configuration;
@@ -44,9 +42,7 @@ public static class Configure
 			});
 		}
 
-		app._UseOptions();
-
-		app._UseSession();
+		app.UseSession();
 
 		app.UseRouting();
 

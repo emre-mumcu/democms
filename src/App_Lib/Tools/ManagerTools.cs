@@ -119,9 +119,9 @@ namespace src.App_Lib.Tools
 
 			var memCache = _httpContextAccessor.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
 
-			List<RoleMatrix>? roleMatrix = new _CacheRoleMatrix(memCache).GetCache().Result;
+			List<DynamicRole>? roleMatrix = new _CacheRoleMatrix(memCache).GetCache().Result;
 
-			IEnumerable<RoleMatrix>? RolCodeIcinVeriTabanindakiYetkiTanimlari = roleMatrix?.Where(i => i.RoleCode == userSelectedRole);
+			IEnumerable<DynamicRole>? RolCodeIcinVeriTabanindakiYetkiTanimlari = roleMatrix?.Where(i => i.RoleCode == userSelectedRole);
 
 			bool RedEdildi = DynamicRoleRequirementFilter.DenyCheck(
                 redListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == false).ToList(),

@@ -22,13 +22,6 @@ public static class Session
 
 		return services;
 	}
-
-	public static IApplicationBuilder _UseSession(this WebApplication app)
-	{
-		app.UseSession();
-
-		return app;
-	}
 }
 
 public static class SessionExtensions

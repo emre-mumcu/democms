@@ -46,6 +46,6 @@ namespace src.App_Data
 		// Entities
 		public virtual DbSet<ActionLog> ActionLogs => Set<ActionLog>();
 		public virtual DbSet<ExceptionLog> ExceptionLogs => Set<ExceptionLog>();
-		public virtual DbSet<RoleMatrix> RoleMatrixes => Set<RoleMatrix>();
+		public virtual DbSet<DynamicRole> RoleMatrixes => Set<DynamicRole>();
 	}
 }

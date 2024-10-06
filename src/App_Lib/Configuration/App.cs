@@ -10,14 +10,8 @@ public sealed class App
 	public static App Instance { get => appInstance.Value; }
 
 #pragma warning disable CS8618
-	private App()
+	private App() {}
 #pragma warning restore CS8618
-	{
-		/* _DataConfiguration = new ConfigurationBuilder()
-			.SetBasePath(Directory.GetCurrentDirectory())
-			.AddJsonFile("data.json", true)
-			.Build(); */
-	}
 
 	#endregion Singleton
 

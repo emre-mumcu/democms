@@ -38,9 +38,9 @@ public class DynamicRoleRequirementFilter : IAuthorizationFilter
 
 		var memCache = context.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
 
-		List<RoleMatrix>? roleMatrix = await new _CacheRoleMatrix(memCache).GetCache();
+		List<DynamicRole>? roleMatrix = await new _CacheRoleMatrix(memCache).GetCache();
 
-		IEnumerable<RoleMatrix>? RolCodeIcinVeriTabanindakiYetkiTanimlari = roleMatrix?.Where(i => i.RoleCode == userSelectedRole);
+		IEnumerable<DynamicRole>? RolCodeIcinVeriTabanindakiYetkiTanimlari = roleMatrix?.Where(i => i.RoleCode == userSelectedRole);
 
 		bool RedEdildi = DenyCheck(
 			redListesi: RolCodeIcinVeriTabanindakiYetkiTanimlari.Where(y => y.Allow == false).ToList(),
@@ -67,9 +67,9 @@ public class DynamicRoleRequirementFilter : IAuthorizationFilter
 	/// DenyCheck must run before AllowCheck
 	/// True if deny, False if NOT
 	/// </summary>
-	public static bool DenyCheck(List<RoleMatrix> redListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
+	public static bool DenyCheck(List<DynamicRole> redListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
 	{
-		foreach (RoleMatrix yetki in redListesi)
+		foreach (DynamicRole yetki in redListesi)
 		{
 			if (typeName == nameof(PageModel))
 			{
@@ -95,9 +95,9 @@ public class DynamicRoleRequirementFilter : IAuthorizationFilter
 	/// AllowCheck must run after DenyCheck
 	/// True if allow, False if NOT
 	/// </summary>
-	public static bool AllowCheck(List<RoleMatrix> izinListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
+	public static bool AllowCheck(List<DynamicRole> izinListesi, string ErisilmekIstenenKaynak, string? typeName = nameof(Controller))
 	{
-		foreach (RoleMatrix yetki in izinListesi)
+		foreach (DynamicRole yetki in izinListesi)
 		{
 			if (typeName == nameof(PageModel))
 			{

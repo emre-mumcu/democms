@@ -32,9 +32,4 @@ public static class RequestLocalization
 
 		return services;
 	}
-
-	public static IApplicationBuilder _UseRequestLocalization(this WebApplication app)
-	{
-		return app;
-	}
 }

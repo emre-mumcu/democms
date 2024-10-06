@@ -22,8 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas/Admin/Models/" />
-    <Folder Include="Areas/Admin/ViewModels/" />
+    <Folder Include="Areas/Admin/Views/Home/" />
   </ItemGroup>
 
 </Project>
