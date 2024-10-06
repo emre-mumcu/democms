@@ -1,7 +1,4 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Caching.Memory;
 using src.App_Data;
 using src.App_Data.Entities;
@@ -19,7 +16,7 @@ namespace src.Areas.Admin.Controllers
 	public class MatrixController : Controller
     {
 		[HttpGet]
-		[RoleRequirement(AllowedRoles: new EnumRoles[] { EnumRoles.ADMINISTRATOR })]
+		[RoleRequirement(AllowedRoles: [EnumRoles.ADMINISTRATOR])]
 		public IActionResult Index([FromServices] AppDbContext appDbContext)
 		{
 			var vals = EnumExtensions.GetAllValues<EnumRoles>();
@@ -35,39 +32,41 @@ namespace src.Areas.Admin.Controllers
 		}
 
 		[HttpPost]
-		[RoleRequirement(AllowedRoles: new EnumRoles[] { EnumRoles.ADMINISTRATOR })]
+		[RoleRequirement(AllowedRoles: [EnumRoles.ADMINISTRATOR])]
 		public async void Index([FromServices] AppDbContext appDbContext, string Yetki, string Role, int Durum)
 		{
 			string roleName = Security.Decrypt(Role, HttpContext.Session.Id);
-			bool roleDurum = Durum == 1;
+			
+			DynamicRole? role = appDbContext.DynamicRoles
+				.Where(y => y.FullName == Yetki && y.RoleCode == roleName)
+				.FirstOrDefault()
+			;
 
-			// check if yetli && role defined earlier:
-			DynamicRole? mevcutYetki = appDbContext.DynamicRoles.Where(y => y.FullName == Yetki && y.RoleCode == roleName).FirstOrDefault();
-
-			if (mevcutYetki is null)
+			if (role == null)
 			{
 				DynamicRole yetki = new DynamicRole()
 				{
 					RoleCode = roleName,
 					FullName = Yetki,
-					Allow = roleDurum,
+					Allow = Durum == 1,
+					Created = DateTime.UtcNow,
+					Updated = DateTime.UtcNow,
 				};
 
-				appDbContext.DynamicRoles.Add(yetki);
-				appDbContext.SaveChanges();
+				appDbContext.DynamicRoles.Add(yetki);				
 			}
 			else
 			{
-				mevcutYetki.Allow = roleDurum;
+				role.Allow = Durum == 1;
+				role.Updated = DateTime.UtcNow;
 
-				appDbContext.DynamicRoles.Update(mevcutYetki);
-				appDbContext.SaveChanges();
+				appDbContext.DynamicRoles.Update(role);
 			}
-
-			// Update Cache
-			var memCache = HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
-			await new _CacheRoleMatrix(memCache).GetCache(isDirty: true);
+			
+			appDbContext.SaveChanges();
+			
+			// Update Cache			
+			await new _CacheRoleMatrix(HttpContext.RequestServices.GetRequiredService<IMemoryCache>()).GetCache(isDirty: true);
 		}
-
 	}
 }
