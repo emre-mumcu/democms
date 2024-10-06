@@ -24,10 +24,11 @@ public static class EnumExtensions
 	{
 		IEnumerable<TAttribute> attributes = Enumerable.Empty<TAttribute>();
 
-		Enum.GetValues(typeof(TEnum)).Cast<TEnum>().ToList().ForEach(item => {
-			attributes.Concat(item.GetAttributes<TAttribute>() ?? Enumerable.Empty<TAttribute>());
+		Enum.GetValues(typeof(TEnum)).Cast<TEnum>().ToList().ForEach(item =>
+		{
+			attributes = attributes.Concat(item.GetAttributes<TAttribute>() ?? Enumerable.Empty<TAttribute>());
 		});
-
+		
 		return attributes;
 	}
 
