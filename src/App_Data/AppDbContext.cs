@@ -6,6 +6,8 @@ using src.App_Lib.Configuration;
 // dotnet build
 // dotnet ef migrations add Mig0 -o App_Data/Migrations
 // dotnet ef database update
+// dotnet ef database drop
+// dotnet ef migrations remove
 
 namespace src.App_Data
 {
