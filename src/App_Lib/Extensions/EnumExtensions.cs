@@ -2,11 +2,28 @@ using System.ComponentModel;
 using System.Reflection;
 using src.App_Data.Types;
 using src.App_Lib.Attributes;
+using System.Linq;
 
 namespace src.App_Lib.Extensions;
 
 public static class EnumExtensions
 {
+	public static IEnumerable<TEnum> GetAllValues<TEnum>(this TEnum enumType) where TEnum : Enum
+	{
+		return Enum.GetValues(typeof(TEnum)).Cast<TEnum>();
+	}
+
+	public static IEnumerable<TAttribute> GetAllAttributes<TEnum, TAttribute>(this TEnum enumType) where TEnum : Enum where TAttribute: Attribute
+	{
+		IEnumerable<TAttribute> attributes = Enumerable.Empty<TAttribute>();
+
+		Enum.GetValues(typeof(TEnum)).Cast<TEnum>().ToList().ForEach(item => {
+			attributes.Concat(item.GetAttributes<TAttribute>() ?? Enumerable.Empty<TAttribute>());
+		});
+		
+		return attributes;
+	}
+
 	public static IEnumerable<T>? GetAttributes<T>(this Enum enumValue) where T : Attribute
 	{
 		FieldInfo? fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
@@ -37,7 +54,7 @@ public static class EnumExtensions
 			: throw new ArgumentException($"Enum has no {nameof(FileContentTypeAttribute)} attribute", nameof(enumValue));
 	}
 
-	public static int GetmContentLenght(this Enum enumValue)
+	public static int GetContentLenght(this Enum enumValue)
 	{
 		var attributes = enumValue.GetAttributes<FileContentLengthAttribute>();
 

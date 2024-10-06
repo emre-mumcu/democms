@@ -5,7 +5,7 @@ using src.Areas.Admin.Models;
 namespace src.App_Lib.Concrete;
 
 /// <summary>
-/// Application roles are listed using Controllers, Actions and Pages with DynamicRoleRequirementAttribute
+/// DynamicRoleRequirementAttribute is required for Controllers, Actions and Pages for them to be listed
 /// </summary>
 public class AppRoles
 {
@@ -84,7 +84,7 @@ public class AppRoles
 		List<AppRole>? all = Enumerable.Empty<AppRole>()
 			.Concat(GetControllers() ?? Enumerable.Empty<AppRole>())
 			.Concat(GetActions() ?? Enumerable.Empty<AppRole>())
-			.Concat(GetActions() ?? Enumerable.Empty<AppRole>())
+			.Concat(GetPages() ?? Enumerable.Empty<AppRole>())
 			.ToList()
 		;		
 

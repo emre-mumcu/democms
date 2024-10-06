@@ -23,7 +23,8 @@ namespace src.Areas.Admin.Controllers
 			MatrixVM vm = new MatrixVM() 
 			{
 				AppRoles = new AppRoles().GetAll(),
-				DynamicRoles = appDbContext.DynamicRoles.ToList()
+				DynamicRoles = appDbContext.DynamicRoles.ToList(),
+				RoleDescriptionAttributes = EnumRoles.ADMINISTRATOR.GetAttributes<>
 			};
 
 			return View(model: vm);
